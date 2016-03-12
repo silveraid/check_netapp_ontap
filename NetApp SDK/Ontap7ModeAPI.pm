@@ -1,10 +1,10 @@
 ##
 # $Id$
 # 
-# Copyright (c) 2014 Network Appliance, Inc.
+# Copyright (c) 2015 Network Appliance, Inc.
 # All rights reserved.
 # 
-# This file was generated at Jan 14, 2014 3:33:09 AM
+# This file was generated at Nov 13, 2015 7:19:49 AM
 ##
 
 package Ontap7ModeAPI;
@@ -1120,7 +1120,7 @@ my $APIS = {
         'outputs' => {
             'current-mode' => {
                 'type' => 'string',
-                'flags' => 0,
+                'flags' => 4,
                 'scope' => [],
             },
             'current-time' => {
@@ -5764,6 +5764,11 @@ my $APIS = {
         'category' => 'ic',
         'family' => ['ontap-c', 'ontap-d'],
         'inputs' => {
+            'sfo-rv-name' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
             'verbose' => {
                 'type' => 'boolean',
                 'flags' => 4,
@@ -5814,6 +5819,11 @@ my $APIS = {
             'sfo-nic-used' => {
                 'type' => 'integer',
                 'flags' => 0,
+                'scope' => [],
+            },
+            'sfo-rv-role' => {
+                'type' => 'string',
+                'flags' => 4,
                 'scope' => [],
             },
         },
@@ -7038,6 +7048,11 @@ my $APIS = {
         'outputs' => {
             'license-v2-failure-list' => {
                 'type' => 'license-v2-result',
+                'flags' => 7,
+                'scope' => [],
+            },
+            'license-v2-success-list' => {
+                'type' => 'license-v2-added',
                 'flags' => 7,
                 'scope' => [],
             },
@@ -12512,6 +12527,11 @@ my $APIS = {
                 'flags' => 0,
                 'scope' => [],
             },
+            'force' => {
+                'type' => 'boolean',
+                'flags' => 4,
+                'scope' => [],
+            },
             'path' => {
                 'type' => 'string',
                 'flags' => 0,
@@ -12617,6 +12637,11 @@ my $APIS = {
         'category' => 'snapshot',
         'family' => ['ontap-c', 'ontap-d', 'ontap-vserver', 'vfiler'],
         'inputs' => {
+            'force' => {
+                'type' => 'boolean',
+                'flags' => 4,
+                'scope' => [],
+            },
             'path' => {
                 'type' => 'string',
                 'flags' => 0,
@@ -12668,6 +12693,11 @@ my $APIS = {
         'category' => 'snapshot',
         'family' => ['ontap-c', 'ontap-vserver', 'vfiler'],
         'inputs' => {
+            'force' => {
+                'type' => 'boolean',
+                'flags' => 4,
+                'scope' => [],
+            },
             'snapshot' => {
                 'type' => 'string',
                 'flags' => 0,
@@ -13873,7 +13903,7 @@ my $APIS = {
         'outputs' => {
             'adapter-details' => {
                 'type' => 'adapter-detail-info',
-                'flags' => 1,
+                'flags' => 3,
                 'scope' => [],
             },
         },
@@ -14157,7 +14187,7 @@ my $APIS = {
         'outputs' => {
             'load-info' => {
                 'type' => 'storage-initiator-load-info',
-                'flags' => 3,
+                'flags' => 7,
                 'scope' => [],
             },
         },
@@ -14378,6 +14408,47 @@ my $APIS = {
                 'flags' => 0,
                 'scope' => [],
             },
+        },
+    },
+    'ucm-adapter-list-info' => {
+        'category' => 'ucm',
+        'family' => ['ontap-c'],
+        'inputs' => {
+            'adapter-name' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
+        },
+        'outputs' => {
+            'uc-adapters' => {
+                'type' => 'uc-adapter-info',
+                'flags' => 7,
+                'scope' => [],
+            },
+        },
+    },
+    'ucm-adapter-modify' => {
+        'category' => 'ucm',
+        'family' => ['ontap-c', 'ontap-cluster'],
+        'inputs' => {
+            'adapter-name' => {
+                'type' => 'string',
+                'flags' => 0,
+                'scope' => [],
+            },
+            'fc4-type' => {
+                'type' => 'ucm-type',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'mode' => {
+                'type' => 'ucm-mode',
+                'flags' => 4,
+                'scope' => [],
+            },
+        },
+        'outputs' => {
         },
     },
     'useradmin-domainuser-add' => {
@@ -19213,7 +19284,7 @@ my $TYPEDEFS = {
             },
             'is-sfp-diagnostics-internally-calibrated' => {
                 'type' => 'boolean',
-                'flags' => 0,
+                'flags' => 4,
                 'scope' => [],
             },
             'is-sfp-optical-transceiver-valid' => {
@@ -19278,37 +19349,37 @@ my $TYPEDEFS = {
             },
             'sfp-connector' => {
                 'type' => 'string',
-                'flags' => 0,
+                'flags' => 4,
                 'scope' => [],
             },
             'sfp-date-code' => {
                 'type' => 'string',
-                'flags' => 0,
+                'flags' => 4,
                 'scope' => [],
             },
             'sfp-encoding' => {
                 'type' => 'string',
-                'flags' => 0,
+                'flags' => 4,
                 'scope' => [],
             },
             'sfp-fc-speedcapabilities' => {
                 'type' => 'string',
-                'flags' => 0,
+                'flags' => 4,
                 'scope' => [],
             },
             'sfp-formfactor' => {
                 'type' => 'string',
-                'flags' => 0,
+                'flags' => 4,
                 'scope' => [],
             },
             'sfp-part-number' => {
                 'type' => 'string',
-                'flags' => 0,
+                'flags' => 4,
                 'scope' => [],
             },
             'sfp-rev' => {
                 'type' => 'string',
-                'flags' => 0,
+                'flags' => 4,
                 'scope' => [],
             },
             'sfp-rx-power' => {
@@ -19318,7 +19389,7 @@ my $TYPEDEFS = {
             },
             'sfp-serial-number' => {
                 'type' => 'string',
-                'flags' => 0,
+                'flags' => 4,
                 'scope' => [],
             },
             'sfp-tx-power' => {
@@ -19328,17 +19399,17 @@ my $TYPEDEFS = {
             },
             'sfp-vendor-name' => {
                 'type' => 'string',
-                'flags' => 0,
+                'flags' => 4,
                 'scope' => [],
             },
             'sfp-vendor-oui' => {
                 'type' => 'string',
-                'flags' => 0,
+                'flags' => 4,
                 'scope' => [],
             },
             'sfp-wavelength' => {
                 'type' => 'integer',
-                'flags' => 0,
+                'flags' => 4,
                 'scope' => [],
             },
             'spurious-interrupts' => {
@@ -21596,6 +21667,46 @@ my $TYPEDEFS = {
     'license-code-v2' => {
         'category' => 'license-v2',
         'fields' => {
+        },
+    },
+    'license-v2-added' => {
+        'category' => 'license-v2',
+        'fields' => {
+            'customer-id' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'expiration-time' => {
+                'type' => 'datetime',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'license-key' => {
+                'type' => 'license-code-v2',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'package' => {
+                'type' => 'licensed-package',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'package-description' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'serial-number' => {
+                'type' => 'node-serial-number',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'type' => {
+                'type' => 'license-v2-type',
+                'flags' => 4,
+                'scope' => [],
+            },
         },
     },
     'license-v2-info' => {
@@ -24036,9 +24147,19 @@ my $TYPEDEFS = {
     'qtree-info' => {
         'category' => 'qtree',
         'fields' => {
+            'export-policy' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
             'id' => {
                 'type' => 'integer',
                 'flags' => 0,
+                'scope' => [],
+            },
+            'is-export-policy-inherited' => {
+                'type' => 'boolean',
+                'flags' => 4,
                 'scope' => [],
             },
             'oplocks' => {
@@ -25071,6 +25192,11 @@ my $TYPEDEFS = {
     'sas-connector-info' => {
         'category' => 'ses',
         'fields' => {
+            'attached-serial-no' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
             'cable-end-identifier' => {
                 'type' => 'string',
                 'flags' => 4,
@@ -25184,6 +25310,16 @@ my $TYPEDEFS = {
             'ses-logical-id' => {
                 'type' => 'string',
                 'flags' => 0,
+                'scope' => [],
+            },
+            'ses-midplane-part-number' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'ses-midplane-serial-number' => {
+                'type' => 'string',
+                'flags' => 4,
                 'scope' => [],
             },
             'ses-product-id' => {
@@ -26256,6 +26392,11 @@ my $TYPEDEFS = {
                 'flags' => 4,
                 'scope' => [],
             },
+            'fs-block-format' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => ['ontap-c', 'vfiler'],
+            },
             'is-7-mode-snapshot' => {
                 'type' => 'boolean',
                 'flags' => 4,
@@ -27316,6 +27457,11 @@ my $TYPEDEFS = {
     'sas-qsfp-cable-info' => {
         'category' => 'storage-adapter',
         'fields' => {
+            'attached-serial-number' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
             'cable-end-identifier' => {
                 'type' => 'string',
                 'flags' => 4,
@@ -27671,6 +27817,11 @@ my $TYPEDEFS = {
                 'flags' => 4,
                 'scope' => [],
             },
+            'vmdisk-backing-info' => {
+                'type' => 'vmdisk-backing-info',
+                'flags' => 5,
+                'scope' => [],
+            },
         },
     },
     'disk-outage-info' => {
@@ -27948,6 +28099,31 @@ my $TYPEDEFS = {
             },
         },
     },
+    'vmdisk-backing-info' => {
+        'category' => 'storage-disk',
+        'fields' => {
+            'vmdisk-backing-device-id' => {
+                'type' => 'string',
+                'flags' => 0,
+                'scope' => [],
+            },
+            'vmdisk-backing-disk-model' => {
+                'type' => 'string',
+                'flags' => 0,
+                'scope' => [],
+            },
+            'vmdisk-backing-serial-number' => {
+                'type' => 'string',
+                'flags' => 0,
+                'scope' => [],
+            },
+            'vmdisk-backing-vendor-id' => {
+                'type' => 'string',
+                'flags' => 0,
+                'scope' => [],
+            },
+        },
+    },
     'disk-path-info' => {
         'category' => 'storage-initiator',
         'fields' => {
@@ -28094,6 +28270,21 @@ my $TYPEDEFS = {
             'tpgn' => {
                 'type' => 'integer',
                 'flags' => 0,
+                'scope' => [],
+            },
+            'vmdisk-device-id' => {
+                'type' => 'integer',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'vmdisk-hypervisor-area-name' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'vmdisk-hypervisor-file-name' => {
+                'type' => 'string',
+                'flags' => 4,
                 'scope' => [],
             },
         },
@@ -28289,6 +28480,11 @@ my $TYPEDEFS = {
             'tpgn' => {
                 'type' => 'integer',
                 'flags' => 0,
+                'scope' => [],
+            },
+            'vmdisk-device-id' => {
+                'type' => 'integer',
+                'flags' => 4,
                 'scope' => [],
             },
         },
@@ -28566,6 +28762,176 @@ my $TYPEDEFS = {
                 'flags' => 0,
                 'scope' => [],
             },
+            'vm-system-disks' => {
+                'type' => 'vm-system-disks',
+                'flags' => 5,
+                'scope' => [],
+            },
+            'vmhost-info' => {
+                'type' => 'vmhost-info',
+                'flags' => 5,
+                'scope' => [],
+            },
+        },
+    },
+    'vm-system-disks' => {
+        'category' => 'system',
+        'fields' => {
+            'vm-bootdisk-area-name' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'vm-bootdisk-file-name' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'vm-coredisk-area-name' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'vm-coredisk-file-name' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'vm-logdisk-area-name' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'vm-logdisk-file-name' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
+        },
+    },
+    'vmhost-info' => {
+        'category' => 'system',
+        'fields' => {
+            'vmhost-bios-release-date' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'vmhost-bios-version' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'vmhost-cpu-clock-rate' => {
+                'type' => 'integer',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'vmhost-cpu-core-count' => {
+                'type' => 'integer',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'vmhost-cpu-socket-count' => {
+                'type' => 'integer',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'vmhost-cpu-thread-count' => {
+                'type' => 'integer',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'vmhost-hardware-vendor' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'vmhost-hypervisor' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'vmhost-memory' => {
+                'type' => 'integer',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'vmhost-model' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'vmhost-name' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'vmhost-uuid' => {
+                'type' => 'string',
+                'flags' => 4,
+                'scope' => [],
+            },
+        },
+    },
+    'uc-adapter-info' => {
+        'category' => 'ucm',
+        'fields' => {
+            'adapter-name' => {
+                'type' => 'string',
+                'flags' => 0,
+                'scope' => [],
+            },
+            'fc4-type' => {
+                'type' => 'ucm-type',
+                'flags' => 0,
+                'scope' => [],
+            },
+            'mode' => {
+                'type' => 'ucm-mode',
+                'flags' => 0,
+                'scope' => [],
+            },
+            'pending-fc4-type' => {
+                'type' => 'ucm-type',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'pending-mode' => {
+                'type' => 'ucm-mode',
+                'flags' => 4,
+                'scope' => [],
+            },
+            'status' => {
+                'type' => 'string',
+                'flags' => 0,
+                'scope' => [],
+            },
+            'supported-fc4-type-for-cna-mode' => {
+                'type' => 'ucm-type',
+                'flags' => 6,
+                'scope' => [],
+            },
+            'supported-fc4-type-for-fc-mode' => {
+                'type' => 'ucm-type',
+                'flags' => 6,
+                'scope' => [],
+            },
+            'supported-mode' => {
+                'type' => 'ucm-mode',
+                'flags' => 2,
+                'scope' => [],
+            },
+        },
+    },
+    'ucm-mode' => {
+        'category' => 'ucm',
+        'fields' => {
+        },
+    },
+    'ucm-type' => {
+        'category' => 'ucm',
+        'fields' => {
         },
     },
     'sid' => {
@@ -29984,11 +30350,11 @@ Ontap7ModeAPI - Contains the definitions and description of API Bindings for 7-M
 
 =head1 DESCRIPTION
 
-NetApp Manageability SDK 5.2 provides support for Perl API bindings for both Data ONTAP APIs and OnCommand Unified Manager APIs.
+NetApp Manageability SDK 5.3.1 provides support for Perl API bindings for both Data ONTAP APIs and OnCommand Unified Manager APIs.
 The Perl API bindings libraries contain interfaces to establish a connection with either the Data ONTAP server or the OnCommand Unified Manager server.
 By using these libraries, you can create Perl applications to access and manage the Data ONTAP server or OnCommand Unified Manager server.
 
-NetApp Manageability SDK 5.2 Perl API bindings provide a runtime library NaServer.pm, which is available at <installation_folder>/lib/perl/NetApp.
+NetApp Manageability SDK 5.3.1 Perl API bindings provide a runtime library NaServer.pm, which is available at <installation_folder>/lib/perl/NetApp.
 This library file enables you to establish a server connection, send requests and receive responses, and interpret error messages.
 Each binding can be called as a subroutine of NaServer module which in turn invokes the corresponding Data ONTAP or OnCommand Unified Manager API.
 
@@ -33123,7 +33489,7 @@ B<Outputs>
 
 =over 2
 
-=item * I<current-mode>  =>   B<string>
+=item * I<current-mode>  =>   B<string, optional>
 
 =begin html
 
@@ -33267,7 +33633,7 @@ B<Outputs>
 
 =begin html
 
-<br>if state == takeover_failed, this is the reason for the takeover failure
+<br>If state equals "takeover_failed", this is the reason for the takeover failure. Possible values are: <ul> <li>shutdown_in_progress - shutdown is in progress</li> <li>aggr_relocation_in_progress - aggregate relocation is in progress</li> <li>giveback_in_progress - giveback is in progress</li> <li>takeover_in_progress - takeover is in progress </li> <li>unknown_partner_id - node could not detect its partner's system ID</li> <li>conflicting_sysid - node has the same system ID as its partner</li> <li>pri_mbx_update_error - node could not update its primary mailbox</li> <li>takeover_disabled_by_partner - partner has disabled takeover</li> <li>cannot_takeover_partner_subsystem - node failed to takeover one of partner's subsystems</li> <li>non_etc_or_rc_boot - it is not possible to takeover in a non-etc/rc boot</li> <li>bck_mbx_update_error - node could not update its backup mailbox</li> <li>partner_taking_over - partner is taking over local node </li> <li>revert_in_progress - revert is in progress </li> <li>disaster_recovery_in_progress - disaster recovery operation is in progress</li> <li>headswap_in_progress - headswap is in progress </li> <li>destination_check_failed - destination check failed </li> <li>communication_failed - communication with destination failed</li> <li>operation_aborted - operation was aborted </li> <li>aggr_not_online - destination node did not online the aggregate being relocated in time </li> <li>sfo_disabled - storage failover service is not enabled </li> <li>partner_taking_over - partner is taking over local node </li> <li>bdfu_not_disabled_source - failed to disable background disk firmware update (BDFU) on local node </li> <li>bdfu_not_disabled_dest - failed to disable background disk firmware update (BDFU) on partner node </li> <li>partner_shutting_down - shutdown is in progress on the partner node</li> <li>partner_aggr_relocation_in_progress - aggregate relocation is in progress on the partner node</li> <li>partner_giveback_in_progress - giveback is in progress on the partner node</li> <li>partner_revert_in_progress - revert is in progress on the partner node </li> <li>partner_disaster_recovery_in_progress - disaster recovery operation is in progress on the partner node</li> <li>partner_in_headswap - headswap is in progress on the partner node</li> </ul>
 
 =end html
 
@@ -41590,7 +41956,7 @@ B<Outputs>
 
 =begin html
 
-Sets the speed on the Fibre Channel target adapter. It can be configured to run at 1Gb, 2Gb, 4Gb, or to autonegotiate. Note only 4Gb adapters support the 4Gb speed. If the adapter is online it must be brought offline before setting the speed, and then online in order for a new speed to take effect. This may temporarily disrupt fcp service on the target adapter.
+Sets the speed on the Fibre Channel target adapter. It can be configured to run at 1Gb, 2Gb, 4Gb, 8Gb, 10Gb, 16Gb or to auto negotiate. The 10Gb adapter only supports the 10Gb speed. The 16Gb adapter only supports speeds of 16Gb, 8Gb, and 4Gb. The 8Gb adapter only supports speeds of 8Gb, 4Gb, and 2Gb. The 4Gb adapter only supports speeds of 4Gb, 2Gb, and 1Gb. If the adapter is online it must be brought offline before setting the speed, and then online in order for a new speed to take effect. This may temporarily disrupt fcp service on the target adapter.
 
 =end html
 
@@ -41618,7 +41984,7 @@ B<Inputs>
 
 =begin html
 
-<br>Link speed (in Gb). Possible values: "1", "2", "4", or "auto" (autonegotiate speed).
+<br>Link speed (in Gb). Possible values: "1", "2", "4", "8", "10", "16" or "auto" (auto negotiate speed).
 
 =end html
 
@@ -42217,7 +42583,7 @@ B<Inputs>
 
 =begin html
 
-<br>Additional data to send in the payload of the ELS ECHO frame. The payload can be up to 255 characters long.
+<br>Additional data to send in the payload of the ELS ECHO frame. The payload can be up to 248 characters long.
 
 =end html
 
@@ -42284,7 +42650,7 @@ B<Inputs>
 
 =begin html
 
-<br>Additional data to send in the payload of the ELS ECHO frame. The payload can be up to 255 characters long.
+<br>Additional data to send in the payload of the ELS ECHO frame. The payload can be up to 248 characters long.
 
 =end html
 
@@ -46098,6 +46464,20 @@ B<Inputs>
 
 =over 2
 
+=item * I<sfo-rv-name>  =>   B<string, optional>
+
+=begin html
+
+<br>It give error counters specific to either cfo_rv or cfo_rv1. If it is not given then it displays error counters of cfo_rv.
+
+=end html
+
+=back
+
+
+
+=over 2
+
 =item * I<verbose>  =>   B<boolean, optional>
 
 =begin html
@@ -46231,6 +46611,20 @@ B<Outputs>
 =begin html
 
 <br>The interconnect adapter in use Range : [0..2^32-1]
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<sfo-rv-role>  =>   B<string, optional>
+
+=begin html
+
+<br>Role of sfo rv (rendezvous connection used for the cluster interconnect). Possible value: "source_rv", "dest_rv", "not applicable", "none".
 
 =end html
 
@@ -49796,6 +50190,20 @@ B<Outputs>
 =begin html
 
 <br>A list of failed license operations, one entry per license.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<license-v2-success-list>  =>   B<L<"license-v2-added">[], optional>
+
+=begin html
+
+<br>A list of successfully added licenses, one entry per license.
 
 =end html
 
@@ -61220,7 +61628,7 @@ B<Outputs>
 
 =begin html
 
-<br>Shelf module type. Some examples are: "ESH2", and "AT-FCX".
+<br>Shelf module type. Some examples are: "esh2", and "at-fcx".
 
 =end html
 
@@ -63081,7 +63489,7 @@ B<Inputs>
 
 =begin html
 
-<br>Specifies the upper bound, in kilobytes per second, at which data is transferred between clusters on Data ONTAP Cluster-Mode, or between storage systems on ata ONTAP 7-Mode. The default is unlimited (0)which permits the SnapMirror relationship to fully utilize the available network bandwidth. On Data ONTAP operating in Cluster-Mode, the max-transfer-rate option does not affect load-sharing mirrors and other SnapMirror relationships confined to a single cluster.
+<br>Specifies the upper bound, in kilobytes per second, at which data is transferred. The default is unlimited (0) which permits the SnapMirror relationship to fully utilize the available network bandwidth. On Data ONTAP operating in Cluster-Mode, the max-transfer-rate option does not affect load-sharing transfers and transfers for other relationships with Relationship Capability of Pre 8.2 confined to a single cluster.
 
 =end html
 
@@ -63553,7 +63961,7 @@ B<Inputs>
 
 =begin html
 
-<br>Specified the upper bound, in kilobytes per second, at which data is transferred between clusters on Data ONTAP Cluster-Mode, or between storage systems on ata ONTAP 7-Mode. The default is unlimited (0) which permits the SnapMirror relationship to fully utilize the available network bandwidth. On Data ONTAP operating in Cluster-Mode, the max-transfer-rate option does not affect load-sharing mirrors and other SnapMirror relationships confined to a single cluster.
+<br>Specifies the upper bound, in kilobytes per second, at which data is transferred. The default is unlimited (0) which permits the SnapMirror relationship to fully utilize the available network bandwidth. On Data ONTAP operating in Cluster-Mode, the max-transfer-rate option does not affect load-sharing transfers and transfers for other relationships with Relationship Capability of Pre 8.2 confined to a single cluster.
 
 =end html
 
@@ -64098,7 +64506,7 @@ B<Inputs>
 
 =begin html
 
-<br>Specified the upper bound, in kilobytes per second, at which data is transferred between clusters on Data ONTAP Cluster-Mode, or between storage systems on Data ONTAP operating in 7-Mode. The default is unlimited (0), which permits the SnapMirror relationship to fully utilize the available network bandwidth. On Data ONTAP operating in Cluster-Mode, the max-transfer-rate option does not affect load-sharing mirrors and other SnapMirror relationships confined to a single cluster.
+<br>Specifies the upper bound, in kilobytes per second, at which data is transferred. The default is unlimited (0) which permits the SnapMirror relationship to fully utilize the available network bandwidth. On Data ONTAP operating in Cluster-Mode, the max-transfer-rate option does not affect load-sharing transfers and transfers for other relationships with Relationship Capability of Pre 8.2 confined to a single cluster.
 
 =end html
 
@@ -64992,7 +65400,7 @@ B<Outputs>
 
 =begin html
 
-Restores a particular range of bytes in a file from a specified snapshot. <p> Partial file restores are used to restore particular pieces of LUNs and NFS or CIFS container files that are used by a host to store multiple sources of data. For example, a host may be storing multiple user databases in the same LUN. A partial file restore can be used to restore one of those databases in the LUN while not touching the other databases that are also stored in the LUN. Compressed files will not be restored, thought compression may be enabled on the volume. <p> Partial file restores require significant management by the caller. The caller must understand the metadata of the host LUN or container file so that they can know which bytes belong to the object being restored. <p> Before the restore operation beings, the caller must quiesce the object being restored. It must remain quiesced for the duration of the restore operation. No host I/O should be issued for the object while it is being restored because the snapshot-partial-restore-file commands will be incrementally restoring the LUN or file and the host will therefore see inconsistent content for the object until the restore operation is completed. Host I/O is permitted for the other objects stored in the LUN or container file because the partial file restore will not touch the bytes belonging to those other objects. <p> During the restore the caller must issue a snapshot-partial-restore-file command for each of the byte ranges that belong to the object being restored, based on the metadata of the LUN or container file. Once each command returns, that byte range is restored and the changes are persistent. If the filer should halt while processing a command, that byte range of the LUN or container file is inconsistent. Some of the bytes at the beginning of the range may have been restored while bytes at the end of the range have not been restored. Once the filer is rebooted the caller should re-issue the command to restore that byte range to complete the restore. <p> Once the restore is completed, the caller must purge any host operating system or application buffers that may hold data for the LUN or file that is now stale. For NFS or CIFS mounted volumes the easiest way to purge any host buffers is to unmount and remount the volume. Applications holding buffered data may need to be shut down and restarted. <p> Multiple partial file restore requests may be issued to the same LUN or file simultaneously. There is no requirement that the requests are all restoring from the same snapshot so that multiple restore operations for different objects may be concurrent on the same file. There is no checking to prevent overlapping byte ranges between requests. Preventing this condition is the responsibility of the caller. <p> Partial file restores are not intended for restoring parts of normal user-level files that are stored in an NFS or CIFS exported volume. Use snapshot-restore-file to restore normal files like these. <p> The volume where the LUN or container file to restore and where the snapshot to restore from live must be online and must not be a mirror volume. <p> The partial file restore request may fail if there is not sufficient free space to overwrite all of the blocks in the byte range to be restored. <p> The partial file restore request is synchronous, meaning that the command will not return until the entire byte range is restored. The snapshot being restored from cannot be deleted while a request is being executed, but it can be deleted between requests. If this happens the next request will notice that the snapshot has been deleted and will return an error. <p> The maximum number of bytes of data that can be restored in a single request is given by the max-byte-count value returned by the snapshot-partial-restore-file-list-info command. This limit ensures that requests are periodically interruptible and avoids overloading the filer. <p> If the system halts while a partial file restore request is being executed, the request will not be restarted upon reboot. Some of the bytes at the beginning of the range may have been restored while bytes at the end of the range have not been restored. The caller should reissue the partial file restore request for that byte range to complete the restore.
+Restores a particular range of bytes in a file from a specified snapshot. <p> Partial file restores are used to restore particular pieces of LUNs and NFS or CIFS container files that are used by a host to store multiple sources of data. For example, a host may be storing multiple user databases in the same LUN. A partial file restore can be used to restore one of those databases in the LUN while not touching the other databases that are also stored in the LUN. Compressed files will not be restored, thought compression may be enabled on the volume. <p> Partial file restores require significant management by the caller. The caller must understand the metadata of the host LUN or container file so that they can know which bytes belong to the object being restored. <p> Before the restore operation beings, the caller must quiesce the object being restored. It must remain quiesced for the duration of the restore operation. No host I/O should be issued for the object while it is being restored because the snapshot-partial-restore-file commands will be incrementally restoring the LUN or file and the host will therefore see inconsistent content for the object until the restore operation is completed. Host I/O is permitted for the other objects stored in the LUN or container file because the partial file restore will not touch the bytes belonging to those other objects. <p> During the restore the caller must issue a snapshot-partial-restore-file command for each of the byte ranges that belong to the object being restored, based on the metadata of the LUN or container file. Once each command returns, that byte range is restored and the changes are persistent. If the filer should halt while processing a command, that byte range of the LUN or container file is inconsistent. Some of the bytes at the beginning of the range may have been restored while bytes at the end of the range have not been restored. Once the filer is rebooted the caller should re-issue the command to restore that byte range to complete the restore. <p> Once the restore is completed, the caller must purge any host operating system or application buffers that may hold data for the LUN or file that is now stale. For NFS or CIFS mounted volumes the easiest way to purge any host buffers is to unmount and remount the volume. Applications holding buffered data may need to be shut down and restarted. <p> Multiple partial file restore requests may be issued to the same LUN or file simultaneously. There is no requirement that the requests are all restoring from the same snapshot so that multiple restore operations for different objects may be concurrent on the same file. There is no checking to prevent overlapping byte ranges between requests. Preventing this condition is the responsibility of the caller. <p> Partial file restores are not intended for restoring parts of normal user-level files that are stored in an NFS or CIFS exported volume. Use snapshot-restore-file to restore normal files like these. <p> The volume where the LUN or container file to restore and where the snapshot to restore from live must be online and must not be a mirror volume. <p> The partial file restore request may fail if there is not sufficient free space to overwrite all of the blocks in the byte range to be restored. <p> The partial file restore request may fail if the LUN being restored is a read-only LUN unless the force option is used. <p> The partial file restore request is synchronous, meaning that the command will not return until the entire byte range is restored. The snapshot being restored from cannot be deleted while a request is being executed, but it can be deleted between requests. If this happens the next request will notice that the snapshot has been deleted and will return an error. <p> The maximum number of bytes of data that can be restored in a single request is given by the max-byte-count value returned by the snapshot-partial-restore-file-list-info command. This limit ensures that requests are periodically interruptible and avoids overloading the filer. <p> If the system halts while a partial file restore request is being executed, the request will not be restarted upon reboot. Some of the bytes at the beginning of the range may have been restored while bytes at the end of the range have not been restored. The caller should reissue the partial file restore request for that byte range to complete the restore.
 
 =end html
 
@@ -65007,6 +65415,20 @@ B<Inputs>
 =begin html
 
 <br>The number of bytes to restore, beginning at start-byte. The byte count must be a multiple of 4096. Use snapshot-partial-restore-file-list-info to determine the maximum number of bytes that can be restored in a single request. Range : [0 - 2^64-1]
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<force>  =>   B<boolean, optional>
+
+=begin html
+
+<br>If this field is set to "true", restore operation will proceed even if LUN being restored is read-only. The default value is false.
 
 =end html
 
@@ -65297,13 +65719,27 @@ B<Outputs>
 
 =begin html
 
-Reverts a single file to a revision from a specified snapshot. The volume used for restoring the file must be online and must not be a mirror. Files other than normal files and LUNs are not restored. This includes directories (and their contents), and files with NT streams. Compressed files will not be restored in Data ONTAP 7-mode, though compression may be enabled on the volume. <p> If there is not enough space in the volume, the single file snap restore will not start. If the file already exists (in the active filesystem), it will be overwritten with the version in the snapshot. Exclusive oplocks and hard exclusive locks like the DOS compatibility lock will be invalidated. <p> Other single file snap restores can be executed concurrently. Also it is possible for the single file snap restore to be aborted if we run out of disk space during the operation. When this happens the timestamp of the file being restored will be updated. Thus it will not be the same as the timestamp of the file in the snapshot. <p> For normal files, an in-progress restore can be aborted by removing the file. For NFS users, the last link to the file must be removed. <p> For all restored files, the snapshot used for the restore cannot be deleted. New snapshots cannot be created while a single-file snaprestore is in progress. Scheduled snapshots on the volume will be suspended for the duration of the restore. Tree, user and group quota limits are not enforced for the owner, group and tree in which the file is being restored. Thus if the user, group or tree quotas are exceeded, /etc/quotas will need to be altered after the single file snap restore operation has completed. Then quota resize will need to be run. When the restore completes, the file's attributes (size, permissions, ownership, etc.) should be identical as those in the snapshot. <p> If the system is halted or crashes while a single file snap restore is in progress then the operation will be restarted on reboot. A volume cannot have both a volume snaprestore and a single-file snaprestore executing simultaneously. Multiple single-file snaprestores can be in progress simultaneously. <p> <b>The following applies to Data ONTAP 7-mode only:</b> <p> For normal files while the restore is proceeding, any operation which tries to change the file will be suspended until the restore is done. It could take up to several minutes for before the API invocation returns. Once the invocation returns, the file restore will proceed in the background. The restore may take a long time to complete depending on the size of the file being restored. The file is unavailable for use during this time. <p> For LUNs that are restored over top of their existing LUN, a LUN clone can be created that is backed by the snapshot being restored from and then the clone is split. For LUNs that are restored over top of their existing LUN, an in-progress restore can be aborted by using lun-clone-stop when in Data ONTAP 7-mode. The restored LUN will still be a clone in this case and it will still be partially backed by the snapshot it was restored from. Snapshots are disabled during restore due to space efficient LUN clone split. In order to disable space efficient split during restore set the optional parameter space-efficient-split-disabled. While the restore is proceeding the LUN is available and I/O (both reads and writes) is permitted. Data that is modified in the LUN while the restore is proceeding will not be overwritten by the restore process. The restore may take a long time to complete depending on the size of the LUN being restored. Use lun-clone-status-list-info to see the progress of the LUN restore.
+Reverts a single file to a revision from a specified snapshot. The volume used for restoring the file must be online and must not be a mirror. Files other than normal files and LUNs are not restored. This includes directories (and their contents), and files with NT streams. Compressed files will not be restored in Data ONTAP 7-mode, though compression may be enabled on the volume. <p> If there is not enough space in the volume, the single file snap restore will not start. If the file already exists (in the active filesystem), it will be overwritten with the version in the snapshot. Exclusive oplocks and hard exclusive locks like the DOS compatibility lock will be invalidated. <p> Other single file snap restores can be executed concurrently. Also it is possible for the single file snap restore to be aborted if we run out of disk space during the operation. When this happens the timestamp of the file being restored will be updated. Thus it will not be the same as the timestamp of the file in the snapshot. <p> For normal files, an in-progress restore can be aborted by removing the file. For NFS users, the last link to the file must be removed. <p> For all restored files, the snapshot used for the restore cannot be deleted. New snapshots cannot be created while a single-file snaprestore is in progress. Scheduled snapshots on the volume will be suspended for the duration of the restore. Tree, user and group quota limits are not enforced for the owner, group and tree in which the file is being restored. Thus if the user, group or tree quotas are exceeded, /etc/quotas will need to be altered after the single file snap restore operation has completed. Then quota resize will need to be run. When the restore completes, the file's attributes (size, permissions, ownership, etc.) should be identical as those in the snapshot. <p> If the system is halted or crashes while a single file snap restore is in progress then the operation will be restarted on reboot. A volume cannot have both a volume snaprestore and a single-file snaprestore executing simultaneously. Multiple single-file snaprestores can be in progress simultaneously. <p> <b>The following applies to Data ONTAP 7-mode only:</b> <p> For normal files while the restore is proceeding, any operation which tries to change the file will be suspended until the restore is done. It could take up to several minutes for before the API invocation returns. Once the invocation returns, the file restore will proceed in the background. The restore may take a long time to complete depending on the size of the file being restored. The file is unavailable for use during this time. <p> For LUNs that are restored over top of their existing LUN, a LUN clone can be created that is backed by the snapshot being restored from and then the clone is split. For LUNs that are restored over top of their existing LUN, an in-progress restore can be aborted by using lun-clone-stop when in Data ONTAP 7-mode. The restored LUN will still be a clone in this case and it will still be partially backed by the snapshot it was restored from. Snapshots are disabled during restore due to space efficient LUN clone split. In order to disable space efficient split during restore set the optional parameter space-efficient-split-disabled. While the restore is proceeding the LUN is available and I/O (both reads and writes) is permitted. Data that is modified in the LUN while the restore is proceeding will not be overwritten by the restore process. The restore may take a long time to complete depending on the size of the LUN being restored. Use lun-clone-status-list-info to see the progress of the LUN restore. <p> This operation will fail if the LUN being restored is a read-only LUN unless the force option is used.
 
 =end html
 
 
 
 B<Inputs>
+
+=over 2
+
+=item * I<force>  =>   B<boolean, optional>
+
+=begin html
+
+<br>If this field is set to "true", restore operation will proceed even if LUN being restored is read-only. The default value is false.
+
+=end html
+
+=back
+
+
 
 =over 2
 
@@ -65445,13 +65881,27 @@ B<Outputs>
 
 =begin html
 
-Reverts a volume to a specified snapshot. The volume must be online and must not be a mirror. If reverting the root volume, the filer will be rebooted. Non-root volumes do not require a reboot. A volume cannot have both a volume snaprestore and a single-file snaprestore executing simultaneously. Multiple single-file snaprestores can be in progress simultaneously. After the reversion, the volume is in the same state as it was when the snapshot was taken. <p> This API is not supported on Infinite Volume.
+Reverts a volume to a specified snapshot. The volume must be online and must not be a mirror. If reverting the root volume, the filer will be rebooted. Non-root volumes do not require a reboot. A volume cannot have both a volume snaprestore and a single-file snaprestore executing simultaneously. Multiple single-file snaprestores can be in progress simultaneously. After the reversion, the volume is in the same state as it was when the snapshot was taken. This operation will fail if the volume being restored contains a read-only LUN unless the force option is used. <p> This API is not supported on Infinite Volume.
 
 =end html
 
 
 
 B<Inputs>
+
+=over 2
+
+=item * I<force>  =>   B<boolean, optional>
+
+=begin html
+
+<br>If this field is set to "true", restore operation will proceed even if the volume being restored has a read-only LUN. This operation will restore the read-only LUN as well. The default value is false.
+
+=end html
+
+=back
+
+
 
 =over 2
 
@@ -68853,7 +69303,7 @@ B<Outputs>
 
 =begin html
 
-Display the information about a specified host adapter. The information is displayed base on the controller interface type. ATA, Paralell SCSI, SAS, FC.
+Display the information about a specified host adapter. The information is displayed base on the controller interface type. ATA, Parallel SCSI, SAS, FC.
 
 =end html
 
@@ -68879,7 +69329,7 @@ B<Outputs>
 
 =over 2
 
-=item * I<adapter-details>  =>   B<L<"adapter-detail-info">>
+=item * I<adapter-details>  =>   B<L<"adapter-detail-info">[]>
 
 =begin html
 
@@ -69636,11 +70086,11 @@ B<Outputs>
 
 =over 2
 
-=item * I<load-info>  =>   B<L<"storage-initiator-load-info">[]>
+=item * I<load-info>  =>   B<L<"storage-initiator-load-info">[], optional>
 
 =begin html
 
-<br>A table of per disk load related information for the named port.
+<br>A table of per disk load related information for the named port. Omitted if no array LUNs are visible, or some other internal error occurs.
 
 =end html
 
@@ -70274,6 +70724,118 @@ B<Outputs>
 <br>Current Data ONTAP version running on the appliance. If the cluster is currently operating with more than one version of Data ONTAP, then the lowest version of all is returned.
 
 =end html
+
+=back
+
+
+
+=head2 ucm_adapter_list_info
+
+[B<Family:> ontap-classic]
+
+
+=begin html
+
+Report configuration for all available adapters under Unified Connect Management (UCM) framework.
+
+=end html
+
+
+
+B<Inputs>
+
+=over 2
+
+=item * I<adapter-name>  =>   B<string, optional>
+
+=begin html
+
+<br>Slot name of adapter (e.g 0e). If no adapter is specified, information is returned for all adapters.
+
+=end html
+
+=back
+
+
+
+B<Outputs>
+
+=over 2
+
+=item * I<uc-adapters>  =>   B<L<"uc-adapter-info">[], optional>
+
+=begin html
+
+<br>List of UC adapters. Nothing will be returned if no adapter is available.
+
+=end html
+
+=back
+
+
+
+=head2 ucm_adapter_modify
+
+[B<Family:> ontap-classic]
+
+
+=begin html
+
+Modify configuration of an adapter under the Unified Connect Management (UCM) framework, including the mode and/or the FC-4 type.
+
+=end html
+
+
+
+B<Inputs>
+
+=over 2
+
+=item * I<adapter-name>  =>   B<string>
+
+=begin html
+
+<br>Slot name of adapter (e.g 0e)
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<fc4-type>  =>   B<ucm-type, optional>
+
+=begin html
+
+<br>Modify the FC-4 type of the adapter. Possible values: <ul> <li> "initiator" - change FC-4 type to Initiator <li> "target" - change FC-4 type to Target </ul>
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<mode>  =>   B<ucm-mode, optional>
+
+=begin html
+
+<br>Modify the mode of the adapter. Possible values: <ul> <li> "fc" - change mode to "Fibre Channel" <li> "cna" - change mode to "CNA" </ul>
+
+=end html
+
+=back
+
+
+
+B<Outputs>
+
+=over 2
+
+=item * None
 
 =back
 
@@ -78134,7 +78696,7 @@ B<Fields>
 
 =begin html
 
-<br>When wafliron is run, it goes through different stages/states. This field indicates the current state of wafliron on the specified aggregate. <p> Possible values are: <p> "not_running" - wafliron is not running on this aggregate. <p> "starting" - wafliron is starting, allocating, and/or in the initial mounting phase. <p> "scanning" - wafliron is scanning inodes, and/or fixing file system inconsistencies. <p> "checking_lost_blocks" - wafliron is checking for lost blocks. <p> "checking_lost_inodes" - wafliron is checking link counts. <p> "finishing" - wafliron is cleaning up. <p> "aborting" - wafliron is aborting. <p> "unknown" - wafliron state could not be determined.
+<br>When wafliron is run, it goes through different stages/states. This field indicates the current state of wafliron on the specified aggregate. <p> Possible values are: <p> "waiting_for_commit" - wafliron is finished on this volume but waiting for the changes to be committed or rejected. <p> "not_running" - wafliron is not running on this aggregate. <p> "starting" - wafliron is starting, allocating, and/or in the initial mounting phase. <p> "scanning" - wafliron is scanning inodes, and/or fixing file system inconsistencies. <p> "checking_lost_blocks" - wafliron is checking for lost blocks. <p> "checking_lost_inodes" - wafliron is checking link counts. <p> "finishing" - wafliron is cleaning up. <p> "aborting" - wafliron is aborting. <p> "unknown" - wafliron state could not be determined.
 
 =end html
 
@@ -83784,7 +84346,7 @@ B<Fields>
 
 =over 2
 
-=item * I<is-sfp-diagnostics-internally-calibrated>  =>   B<boolean>
+=item * I<is-sfp-diagnostics-internally-calibrated>  =>   B<boolean, optional>
 
 =begin html
 
@@ -83966,7 +84528,7 @@ B<Fields>
 
 =over 2
 
-=item * I<sfp-connector>  =>   B<string>
+=item * I<sfp-connector>  =>   B<string, optional>
 
 =begin html
 
@@ -83980,7 +84542,7 @@ B<Fields>
 
 =over 2
 
-=item * I<sfp-date-code>  =>   B<string>
+=item * I<sfp-date-code>  =>   B<string, optional>
 
 =begin html
 
@@ -83994,7 +84556,7 @@ B<Fields>
 
 =over 2
 
-=item * I<sfp-encoding>  =>   B<string>
+=item * I<sfp-encoding>  =>   B<string, optional>
 
 =begin html
 
@@ -84008,7 +84570,7 @@ B<Fields>
 
 =over 2
 
-=item * I<sfp-fc-speedcapabilities>  =>   B<string>
+=item * I<sfp-fc-speedcapabilities>  =>   B<string, optional>
 
 =begin html
 
@@ -84022,7 +84584,7 @@ B<Fields>
 
 =over 2
 
-=item * I<sfp-formfactor>  =>   B<string>
+=item * I<sfp-formfactor>  =>   B<string, optional>
 
 =begin html
 
@@ -84036,7 +84598,7 @@ B<Fields>
 
 =over 2
 
-=item * I<sfp-part-number>  =>   B<string>
+=item * I<sfp-part-number>  =>   B<string, optional>
 
 =begin html
 
@@ -84050,7 +84612,7 @@ B<Fields>
 
 =over 2
 
-=item * I<sfp-rev>  =>   B<string>
+=item * I<sfp-rev>  =>   B<string, optional>
 
 =begin html
 
@@ -84078,7 +84640,7 @@ B<Fields>
 
 =over 2
 
-=item * I<sfp-serial-number>  =>   B<string>
+=item * I<sfp-serial-number>  =>   B<string, optional>
 
 =begin html
 
@@ -84106,7 +84668,7 @@ B<Fields>
 
 =over 2
 
-=item * I<sfp-vendor-name>  =>   B<string>
+=item * I<sfp-vendor-name>  =>   B<string, optional>
 
 =begin html
 
@@ -84120,7 +84682,7 @@ B<Fields>
 
 =over 2
 
-=item * I<sfp-vendor-oui>  =>   B<string>
+=item * I<sfp-vendor-oui>  =>   B<string, optional>
 
 =begin html
 
@@ -84134,7 +84696,7 @@ B<Fields>
 
 =over 2
 
-=item * I<sfp-wavelength>  =>   B<integer>
+=item * I<sfp-wavelength>  =>   B<integer, optional>
 
 =begin html
 
@@ -85022,7 +85584,7 @@ B<Fields>
 
 =begin html
 
-<br>Speed configured for this adapter. Possible values: "auto", "1Gb", "2Gb", "4Gb", "8Gb", "10Gb". If an error occured while retrieving info for this adapter, this will not be returned.
+<br>Speed configured for this adapter. Possible values: "auto", "1Gb", "2Gb", "4Gb", "8Gb", "10Gb", "16Gb". If an error occured while retrieving info for this adapter, this will not be returned.
 
 =end html
 
@@ -90378,6 +90940,116 @@ B<Fields>
 
 
 
+=head2 license-v2-added
+
+=begin html
+
+A license entry that was successfully added to the controller or the cluster.
+
+=end html
+
+
+
+B<Fields>
+
+=over 2
+
+=item * I<customer-id>  =>   B<string, optional>
+
+=begin html
+
+<br>Customer Identification. This value is only present in site licenses. It is set to none for standard and demo licenses. Attributes: non-creatable, non-modifiable
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<expiration-time>  =>   B<datetime, optional>
+
+=begin html
+
+<br>License expiration time. This value is only present in demo licenses. It is set to zero for permanent licenses such as standard and site licenses. Attributes: non-creatable, non-modifiable
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<license-key>  =>   B<license-code-v2, optional>
+
+=begin html
+
+<br>License Key. Attributes: non-creatable, non-modifiable
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<package>  =>   B<licensed-package, optional>
+
+=begin html
+
+<br>Package Name. Attributes: non-creatable, non-modifiable
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<package-description>  =>   B<string, optional>
+
+=begin html
+
+<br>Description of the package. Attributes: non-creatable, non-modifiable
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<serial-number>  =>   B<node-serial-number, optional>
+
+=begin html
+
+<br>Serial Number. This value is only present in standard licenses. It is set to none for site and demo licenses. Attributes: non-creatable, non-modifiable
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<type>  =>   B<license-v2-type, optional>
+
+=begin html
+
+<br>License Type. Attributes: non-creatable, non-modifiable
+
+=end html
+
+=back
+
+
+
 =head2 license-v2-info
 
 =begin html
@@ -94550,7 +95222,7 @@ B<Fields>
 
 =begin html
 
-<br>In Data ONTAP 7-Mode, it must be directory name or file to export. In Data ONTAP Cluster-Mode, it must be a junction path of the volume to be exported.
+<br>In Data ONTAP 7-Mode, it must be directory name or file to export. In Data ONTAP Cluster-Mode, it must be the path of the volume or qtree to be exported such as &quot;vol/vol0&quot; or &quot;/vol/vol0/qtree0&quot;.
 
 =end html
 
@@ -94646,7 +95318,7 @@ B<Fields>
 
 =begin html
 
-<br>In Data ONTAP 7-Mode, it must be directory name or file to export. In Data ONTAP Cluster-Mode, it must be a junction path of the volume to be exported.
+<br>In Data ONTAP 7-Mode, it must be directory name or file to export. In Data ONTAP Cluster-Mode, it must be the path of the volume or qtree to be exported such as &quot;vol/vol0&quot; or &quot;/vol/vol0/qtree0&quot;.
 
 =end html
 
@@ -96192,7 +96864,7 @@ B<Fields>
 
 =begin html
 
-<br>In Data ONTAP 7-Mode, it must be the name of the path, such as &quot;/vol/vol0&quot;. In Data ONTAP Cluster-Mode, it must be the junction path of the volume.
+<br>In Data ONTAP 7-Mode, it must be the name of the path, such as &quot;/vol/vol0&quot;. In Data ONTAP Cluster-Mode, it must be the path of the volume or qtree to be exported such as &quot;vol/vol0&quot; or &quot;/vol/vol0/qtree0&quot;.
 
 =end html
 
@@ -97198,11 +97870,39 @@ B<Fields>
 
 =over 2
 
+=item * I<export-policy>  =>   B<string, optional>
+
+=begin html
+
+<br>Export policy of the qtree.
+
+=end html
+
+=back
+
+
+
+=over 2
+
 =item * I<id>  =>   B<integer>
 
 =begin html
 
 <br>Id of the qtree (unique within the volume), which is 0 if qtree is the volume itself.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<is-export-policy-inherited>  =>   B<boolean, optional>
+
+=begin html
+
+<br>If true, this qtree inherits the export policy of the parent volume.
 
 =end html
 
@@ -97380,7 +98080,7 @@ B<Fields>
 
 =begin html
 
-<br>Current amount of disk space, in kilobytes, used by the quota target. The value is "-" if the limit is unlimited.
+<br>Current amount of disk space, in kilobytes, used by the quota target.
 
 =end html
 
@@ -97408,7 +98108,7 @@ B<Fields>
 
 =begin html
 
-<br>Current number of files used by the quota target. The value is "-" if the limit is unlimited.
+<br>Current number of files used by the quota target.
 
 =end html
 
@@ -97724,7 +98424,7 @@ B<Fields>
 
 =begin html
 
-<br>Current amount of disk space, in kilobytes, used by the quota target. The value is "-" if the limit is unlimited.
+<br>Current amount of disk space, in kilobytes, used by the quota target.
 
 =end html
 
@@ -97752,7 +98452,7 @@ B<Fields>
 
 =begin html
 
-<br>Current number of files used by the quota target. The value is "-" if the limit is unlimited.
+<br>Current number of files used by the quota target.
 
 =end html
 
@@ -100042,6 +100742,20 @@ B<Fields>
 
 =over 2
 
+=item * I<attached-serial-no>  =>   B<string, optional>
+
+=begin html
+
+<br>Serial number of the attached cable as assigned by the cable manufacturer. This field will not be present if the information is not available, or if a cable is not connected at this connector. Note that depending on the cable, the serial number at the two ends of the cable may or may not match. An example of this is SAS optical cables that do not have integrated QSFP's, which will show different attached serial numbers at the ends of cable. Cables with integrated QSFP's will have matching serial numbers at both ends.
+
+=end html
+
+=back
+
+
+
+=over 2
+
 =item * I<cable-end-identifier>  =>   B<string, optional>
 
 =begin html
@@ -100102,7 +100816,7 @@ B<Fields>
 
 =begin html
 
-<br>Serial number of the cable as assigned by the cable manufacturer. This field will not be present if the information is not available, or if a cable is not connected at this connector.
+<br>This is actually not serial number, but rather cable identifier. For backwards compatibility this is reported as cable-serial-no. For the actual serial number see attached-serial-no. The connectors at both ends of the same cable will report the same value for this field. This field can be used to generate topology. This field will not be present if a cable is not connected to the connector or if the cable is not connected to a functioning device.
 
 =end html
 
@@ -100360,6 +101074,34 @@ B<Fields>
 
 =over 2
 
+=item * I<ses-midplane-part-number>  =>   B<string, optional>
+
+=begin html
+
+<br>Enclosure midplane part number. The field will not be present if the midplane is not present.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<ses-midplane-serial-number>  =>   B<string, optional>
+
+=begin html
+
+<br>Enclosure midplane serial number. The field will not be present if the midplane is not present.
+
+=end html
+
+=back
+
+
+
+=over 2
+
 =item * I<ses-product-id>  =>   B<string, optional>
 
 =begin html
@@ -100528,7 +101270,7 @@ B<Fields>
 
 =begin html
 
-<br>Current state of the shelf. Possible values are: "no_status", "init_required", "online", "offline", "missing", "failed", "unknown".
+<br>Current state of the shelf. Possible values are: "no_status", "init_required", "online", "missing", "failed", "unknown".
 
 =end html
 
@@ -100542,7 +101284,7 @@ B<Fields>
 
 =begin html
 
-<br>Shelf module type. Possible values: "edm", "vem", "esp", "lrc", "esh", "esh2", "esh4", "eshfx", "eshtx", "emu", "efh", "at-fc", "at-fc2", "at-fcx", "at-fcx2", "sas", "esas", "sas-fc", "iom3", "iom6".
+<br>Shelf module type. Possible values: "edm", "vem", "esp", "lrc", "esh", "esh2", "esh4", "eshfx", "eshtx", "emu", "efh", "at-fc", "at-fc2", "at-fcx", "at-fcx2", "sas", "esas", "sas-fc", "iom3", "iom6", "iom6e".
 
 =end html
 
@@ -100624,7 +101366,7 @@ B<Fields>
 
 =begin html
 
-<br>Shelf bay port designator. Possible values: "in", "out", "aux", "sqr", "cir", "sil", "hi_lo", "a_to_b", "b_to_a", "disk_bay".
+<br>Shelf bay port designator. Possible values: "in", "out", "aux", "sqr", "cir", "sil", "hi_ho", "a_to_b", "b_to_a", "disk_bay".
 
 =end html
 
@@ -101358,7 +102100,7 @@ B<Fields>
 
 =begin html
 
-<br>Current state of the shelf. Possible values are: "no status", "init required", "online", "offline", "missing", "unknown".
+<br>Current state of the shelf. Possible values are: "no status", "init required", "online", "missing", "unknown".
 
 =end html
 
@@ -103297,6 +104039,20 @@ B<Fields>
 =begin html
 
 <br>Application(s) dependent on this snapshot. Possible values include "snapmirror", "snapvault", "dump", "vclone", "LUNs", "snaplock". Comma separated if more than one application depends on this snapshot.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<fs-block-format>  =>   B<string, optional>
+
+=begin html
+
+<br>Filesystem block format of the snapshot. Possible values: 32_bit, mixed, 64_bit.
 
 =end html
 
@@ -106218,6 +106974,20 @@ B<Fields>
 
 =over 2
 
+=item * I<attached-serial-number>  =>   B<string, optional>
+
+=begin html
+
+<br>Serial number of the attached cable as assigned by the cable manufacturer. This field will not be present if the information is not available, or if a cable is not connected at this connector. Note that depending on the cable, the serial number at the two ends of the cable may or may not match. An example of this is SAS optical cables that do not have integrated QSFP's, which will show different attached serial numbers at the ends of cable. Cables with integrated QSFP's will have matching serial numbers at both ends.
+
+=end html
+
+=back
+
+
+
+=over 2
+
 =item * I<cable-end-identifier>  =>   B<string, optional>
 
 =begin html
@@ -106278,7 +107048,7 @@ B<Fields>
 
 =begin html
 
-<br>Cable serial number as assigned by the manufacturer. Will be missing if data not available or not present.
+<br>This is actually not serial number, but rather cable identifier. For backwards compatibility this is reported as cable-serial-number. For the actual serial number see attached-serial-number. The connectors at both ends of the same cable will report the same value for this field. This field can be used to generate topology. This field will not be present if a cable is not connected to the connector or if the cable is not connected to a functioning device.
 
 =end html
 
@@ -106292,7 +107062,7 @@ B<Fields>
 
 =begin html
 
-<br>Cable technology. This field will not be present if the information is not available or accessible, or if a cable is not connected at this connector. Possible values: "copper", "optical".
+<br>Cable technology. This field will not be present if the information is not available or accessible, or if a cable is not connected at this connector. Possible values: "active_copper", "passive_copper", "copper", "optical".
 
 =end html
 
@@ -107200,6 +107970,20 @@ B<Fields>
 
 
 
+=over 2
+
+=item * I<vmdisk-backing-info>  =>   B<L<"vmdisk-backing-info">, optional>
+
+=begin html
+
+<br>Backing info block for virtual machine disks.
+
+=end html
+
+=back
+
+
+
 =head2 disk-outage-info
 
 =begin html
@@ -107956,6 +108740,74 @@ B<Fields>
 
 
 
+=head2 vmdisk-backing-info
+
+=begin html
+
+Backing info block for virtual machine disks.
+
+=end html
+
+
+
+B<Fields>
+
+=over 2
+
+=item * I<vmdisk-backing-device-id>  =>   B<string>
+
+=begin html
+
+<br>Device id of the underlying disk.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vmdisk-backing-disk-model>  =>   B<string>
+
+=begin html
+
+<br>Product id of the underlying disk.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vmdisk-backing-serial-number>  =>   B<string>
+
+=begin html
+
+<br>Serial number of the underlying disk.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vmdisk-backing-vendor-id>  =>   B<string>
+
+=begin html
+
+<br>Vendor of the underlying disk.
+
+=end html
+
+=back
+
+
+
 =head2 disk-path-info
 
 =begin html
@@ -108170,7 +109022,7 @@ B<Fields>
 
 =begin html
 
-<br>ONTAP's use of this path INU - (In Use) This path is currently used for I/O. RDY - (Ready) This path is not being used for I/O currently, but might transition to INU if storge errors or load balancing cause it to transition to INU. ERR - (High Error) The weighted error total on this path is 20% or more of the error threshold. Load balancing will not use it, and the error handling code will only use it as a last resort. QNG - (Quiescing) : The disk is becoming quiesced on this path. QED - (Quiesced) : The disk is quiesced on this path. MCF - (Misconfigured) : The disk is misconfigured on this path. The path is not available for I/O. Refer to storage_initiator_errors_list_info for details.
+<br>ONTAP's use of this path INU - (In Use) This path is currently used for I/O. RDY - (Ready) This path is not being used for I/O currently, but might transition to INU if storge errors or load balancing cause it to transition to INU. ERR - (High Error) The weighted error total on this path is 20% or more of the error threshold. Load balancing will not use it, and the error handling code will only use it as a last resort. QED - (Quiesced) : The disk is quiesced on this path. MCF - (Misconfigured) : The disk is misconfigured on this path. The path is not available for I/O. Refer to storage_initiator_errors_list_info for details. FAL - (Failed) The connectivity to this path is lost.
 
 =end html
 
@@ -108367,6 +109219,48 @@ B<Fields>
 =begin html
 
 <br>The Target Port Group Number of the array's target port. Range: [0..2^64-1]
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vmdisk-device-id>  =>   B<integer, optional>
+
+=begin html
+
+<br>The device id used for the virtual device (also used by the hypervisor) Range: [0..2^32-1]
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vmdisk-hypervisor-area-name>  =>   B<string, optional>
+
+=begin html
+
+<br>The name of the storage area where the vmdisk is physically located. For ESX this is the name of a datastore.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vmdisk-hypervisor-file-name>  =>   B<string, optional>
+
+=begin html
+
+<br>The file name of the virtual disk used by the hypervisor. For ESX this is the name of the disk's vmdk file. Example is "myvm/myvm_1.vmdk"
 
 =end html
 
@@ -108907,6 +109801,20 @@ B<Fields>
 =begin html
 
 <br>The Target Port Group Number of the array's target port. Range: [0..2^64-1]
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vmdisk-device-id>  =>   B<integer, optional>
+
+=begin html
+
+<br>The device id used for the virtual device (also used by the hypervisor) Range: [0..2^32-1]
 
 =end html
 
@@ -109673,6 +110581,488 @@ B<Fields>
 <br>Hardware vendor identifier.
 
 =end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vm-system-disks>  =>   B<L<"vm-system-disks">, optional>
+
+=begin html
+
+<br>Backing info for the Data ONTAP-v system disks
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vmhost-info>  =>   B<L<"vmhost-info">, optional>
+
+=begin html
+
+<br>Info block for the hypervisor physical node on Data ONTAP-v
+
+=end html
+
+=back
+
+
+
+=head2 vm-system-disks
+
+=begin html
+
+Storage info block for the hypervisor physical node on Data ONTAP-v (VSA)
+
+=end html
+
+
+
+B<Fields>
+
+=over 2
+
+=item * I<vm-bootdisk-area-name>  =>   B<string, optional>
+
+=begin html
+
+<br>The name of the hypervisor's storage area for the VMs bootdisk. For ESX this is the name of a datastore.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vm-bootdisk-file-name>  =>   B<string, optional>
+
+=begin html
+
+<br>The hypervisor's filename for the VMs bootdisk.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vm-coredisk-area-name>  =>   B<string, optional>
+
+=begin html
+
+<br>The name of the hypervisor's storage area for the VMs coredump and swap disk. For ESX this is the name of a datastore.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vm-coredisk-file-name>  =>   B<string, optional>
+
+=begin html
+
+<br>The hypervisor's filename for the VMs coredump disk.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vm-logdisk-area-name>  =>   B<string, optional>
+
+=begin html
+
+<br>The name of the hypervisor's storage area for the VMs log disk. For ESX this is the name of a datastore.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vm-logdisk-file-name>  =>   B<string, optional>
+
+=begin html
+
+<br>The hypervisor's filename for the VMs log disk.
+
+=end html
+
+=back
+
+
+
+=head2 vmhost-info
+
+=begin html
+
+Storage info block for the hypervisor physical node on Data ONTAP-v (VSA)
+
+=end html
+
+
+
+B<Fields>
+
+=over 2
+
+=item * I<vmhost-bios-release-date>  =>   B<string, optional>
+
+=begin html
+
+<br>The BIOS release date of the hypervisor machine.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vmhost-bios-version>  =>   B<string, optional>
+
+=begin html
+
+<br>The BIOS version of the hypervisor machine.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vmhost-cpu-clock-rate>  =>   B<integer, optional>
+
+=begin html
+
+<br>The CPU speed of the hypervisor machine (in MHz).
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vmhost-cpu-core-count>  =>   B<integer, optional>
+
+=begin html
+
+<br>The number of CPU cores of the hypervisor machine.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vmhost-cpu-socket-count>  =>   B<integer, optional>
+
+=begin html
+
+<br>The number of CPU sockets of the hypervisor machine.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vmhost-cpu-thread-count>  =>   B<integer, optional>
+
+=begin html
+
+<br>The number of CPU threads of the hypervisor machine.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vmhost-hardware-vendor>  =>   B<string, optional>
+
+=begin html
+
+<br>The hardware vendor of the hypervisor machine. No hypervisor login required.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vmhost-hypervisor>  =>   B<string, optional>
+
+=begin html
+
+<br>The hypervisor version.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vmhost-memory>  =>   B<integer, optional>
+
+=begin html
+
+<br>The amount of physical memory in the hypervisor machine (in bytes).
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vmhost-model>  =>   B<string, optional>
+
+=begin html
+
+<br>The hardware model of the hypervisor machine. No hypervisor login required.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vmhost-name>  =>   B<string, optional>
+
+=begin html
+
+<br>The hostname of the hypervisor machine.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<vmhost-uuid>  =>   B<string, optional>
+
+=begin html
+
+<br>UUID, Universal Unique Identifier, of the hypervisor.
+
+=end html
+
+=back
+
+
+
+=head2 uc-adapter-info
+
+=begin html
+
+Information for one adapter.
+
+=end html
+
+
+
+B<Fields>
+
+=over 2
+
+=item * I<adapter-name>  =>   B<string>
+
+=begin html
+
+<br>The slot name of the adapter (e.g. 0e)
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<fc4-type>  =>   B<ucm-type>
+
+=begin html
+
+<br>The current FC-4 type of this adapter.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<mode>  =>   B<ucm-mode>
+
+=begin html
+
+<br>The current mode of this adapter.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<pending-fc4-type>  =>   B<ucm-type, optional>
+
+=begin html
+
+<br>This is the pending change that has been made to the FC4-type on this adapter, but a controller reboot has not been performed for the change to take effect. A controller reboot is required for any pending changes to take effect. This will not be reported if there is no pending change on this adapter See fc4-type element for possible values.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<pending-mode>  =>   B<ucm-mode, optional>
+
+=begin html
+
+<br>This is the pending change that has been made to the mode on this adapter, but a controller reboot has not been performed for the change to take effect. A controller reboot is required for any pending changes to take effect. This will not be reported if there is no pending change on this adapter. See the mode element for possible values.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<status>  =>   B<string>
+
+=begin html
+
+<br>The status of this adapter. Possible values: <ul> <li> "online" <li> "offline" <li> "unsupported" </ul>
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<supported-fc4-type-for-cna-mode>  =>   B<ucm-type[], optional>
+
+=begin html
+
+<br>Return a list of supported FC-4 types for the adapter if configured in cna mode.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<supported-fc4-type-for-fc-mode>  =>   B<ucm-type[], optional>
+
+=begin html
+
+<br>Return a list of supported FC-4 types for the adapter if configured in fc mode.
+
+=end html
+
+=back
+
+
+
+=over 2
+
+=item * I<supported-mode>  =>   B<ucm-mode[]>
+
+=begin html
+
+<br>Return a list of supported modes for the specified adapter.
+
+=end html
+
+=back
+
+
+
+=head2 ucm-mode
+
+=begin html
+
+The operational mode of the adapter. Possible values: <ul> <li> "fc" - Fibre Channel, <li> "cna" - Converged Network Adapter </ul>
+
+=end html
+
+
+
+B<Fields>
+
+=over 2
+
+=item * None
+
+=back
+
+
+
+=head2 ucm-type
+
+=begin html
+
+The FC-4 type of the adapter. Possible values: <ul> <li> "initiator" - Initiator mode, <li> "target" - Target mode, </ul>
+
+=end html
+
+
+
+B<Fields>
+
+=over 2
+
+=item * None
 
 =back
 

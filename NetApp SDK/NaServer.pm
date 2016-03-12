@@ -41,12 +41,14 @@ our $AUTOLOAD;
 
 my $chk_ssl_init = 0;
 my $add_sha_256_digest = 1;
+my $HTTP_HEADER_BUFFER_SIZE = 1024;
+my $HTTP_LINE_BUFFER_SIZE = 4096;
 
 my $na_can_use_ipv6;
 my $na_can_use_socket6;
 my $na_in6addr_any;
 
-my $NMSDK_VERSION = "5.2";
+my $NMSDK_VERSION = "5.4";
 my $NMSDK_LANGUAGE = "Perl";
 my $NMSDK_PLATFORM = get_platform_info();
 my $nmsdk_bindings = 0;
@@ -56,6 +58,7 @@ my $ontap_cluster_api_bindings;
 my $ontap_7mode_api_bindings;
 my $ocum_classic_api_bindings;
 my $ocum_api_bindings;
+my $chunked_encoding;
 
 eval {
 	# IPv6 is supported by default (in Socket module) from 5.14 version
@@ -140,6 +143,8 @@ sub new {
 	my ($timeout) = 0;
 	my ($prev_resv_port) = 0;
 	my ($originator_id) = "";
+	my ($target_cluster_uuid) = "";
+	my ($target_vserver_name) = "";
 	my ($use_cba) = 0;
 	my ($enable_server_cert_verification) = 0;
 	my ($enable_hostname_verification) = 0;
@@ -148,6 +153,8 @@ sub new {
 	my ($complete_xml_output) = undef;
 	my ($need_bindings_validation) = 1;
 	my ($bindings_family) = undef;
+	my ($use_sslv3) = 0;	
+	my ($http) = "1.1";
 
 	my $self = {
 		server => $server,
@@ -165,6 +172,8 @@ sub new {
 		timeout => $timeout,
 		prev_resv_port => $prev_resv_port,
 		originator_id => $originator_id,
+		target_cluster_uuid => $target_cluster_uuid,
+		target_vserver_name => $target_vserver_name,
 		use_cba => $use_cba,
 		enable_server_cert_verification => $enable_server_cert_verification,
 		enable_hostname_verification => $enable_hostname_verification,
@@ -172,7 +181,9 @@ sub new {
 		trace_threshold => $trace_threshold,
 		complete_xml_output => $complete_xml_output,
 		need_bindings_validation => $need_bindings_validation,
-		bindings_family => $bindings_family
+		bindings_family => $bindings_family,
+		use_sslv3 => $use_sslv3,		
+		http => $http
 	};
 
 	bless $self, $class;
@@ -504,6 +515,38 @@ sub set_raw_xml_output($$)
 }
 #============================================================#
 
+=head2 get_http_version()
+
+	Get the HTTP version. Default is HTTP 1.1.
+
+=cut
+
+sub get_http_version() 
+{
+	my $self = shift;
+	return $self->{http};
+}
+
+#============================================================#
+
+=head2 set_http_version($$)
+
+	Set the HTTP version. Default is HTTP 1.1.
+
+=cut
+
+sub set_http_version($$) 
+{
+	my $self = shift;
+	my $http_version = shift;
+	if($http_version =~ /^1.0$/ || $http_version =~ /^1.1$/) {
+		$self->{http} = $http_version;
+	} else {
+		die "NaServer::set_http_version() - Unsupported http version : $http_version. Valid http versions are '1.0' and '1.1' (13001)\n";
+	}	
+}
+#============================================================#
+
 =head2 use_https()
 
    Determines whether https is enabled.
@@ -537,6 +580,8 @@ sub invoke_elem ($) {
 	my $debug_style = $self->{debug_style};
 	my $vfiler  = $self->{vfiler};
 	my $originator_id  = $self->{originator_id};
+	my $target_cluster_uuid  = $self->{target_cluster_uuid};
+	my $target_vserver_name  = $self->{target_vserver_name};
 	my $ctx = $self->{ctx};
 	my $server_type = $self->get_server_type();
 	my $nmsdk_bindings_req = "";
@@ -559,7 +604,6 @@ sub invoke_elem ($) {
 	my $ssl;
 	
 	my $timeout = $self->get_timeout();
-	
 	my $sock = undef;
 	my $need_server_cert_verification = $self->is_server_cert_verification_enabled();
 	$self->{complete_xml_output} = undef;
@@ -674,6 +718,7 @@ sub invoke_elem ($) {
 	my $content = "";
 	my $vfiler_req = "";
 	my $originator_id_req = "";
+	my $remote_peer_req = "";
 	my $trace_threshold = $self->{trace_threshold};
 
 	if($vfiler ne "") {
@@ -682,6 +727,14 @@ sub invoke_elem ($) {
 
 	if($originator_id ne "") {
 		$originator_id_req = " originator_id=\"$originator_id\" ";
+	}
+
+	if($target_cluster_uuid ne "") {
+		$remote_peer_req = $remote_peer_req . " target-cluster-uuid=\"$target_cluster_uuid\" ";
+	}
+
+	if($target_vserver_name ne "") {
+		$remote_peer_req = $remote_peer_req . " target-vserver-name=\"$target_vserver_name\" ";
 	}
 
 	if($nmsdk_bindings == 1) {
@@ -716,6 +769,7 @@ sub invoke_elem ($) {
 		."<netapp"
 		.$vfiler_req
 		.$originator_id_req
+		.$remote_peer_req
 		." version='"
 		.$self->{major_version}.".".$self->{minor_version}
 		."' xmlns='$::ZAPI_xmlns'"
@@ -734,6 +788,7 @@ sub invoke_elem ($) {
 				."<netapp"
 				.$vfiler_req
 				.$originator_id_req
+				.$remote_peer_req
 				." xmlns=\"$::ZAPI_xmlns\""
 				." version=\""
 				.$self->{major_version}.".".$self->{minor_version}."\""
@@ -751,9 +806,24 @@ sub invoke_elem ($) {
 	
 	$request->content($content);
 	$request->content_length(length($content));
-
-	my $methline =  $request->method()." ".$request->uri()." HTTP/1.0\n";
-	my $headers  =  $request->headers_as_string();
+	my $host = "Host";
+	if($self->{http} eq "1.1") {
+		my $hostname = gethostbyaddr( inet_aton($server), AF_INET ) or return $self->fail_response(13001,
+                     "Failed to get the hostname corresponding to the server: $server. Please provide a fully qualified domain name of the server or use HTTP 1.0");
+		if( defined $hostname ) {
+                 	$request->header($host => $hostname);
+        	} else {
+			return $self->fail_response(13001,
+                     "Hostname is not defined for the server: $server. Please provide a fully qualified domain name of the server or use HTTP 1.0");
+        	}
+		$request->header($host => $hostname);
+	} else {
+	        $request->header($host => $server);
+	}
+	my $http_version = "HTTP/".$self->{http}."\n";
+	
+	my $methline = $request->method()." ".$request->uri()." ".$http_version;
+	my $headers = $request->headers_as_string();
 
 	if ($using_ssl) {
 		$ssl = Net::SSLeay::new($ctx) or return $self->fail_response(13001,
@@ -797,10 +867,12 @@ sub invoke_elem ($) {
 
 	my $n;
 	my $state = 0;	# 1 means we're in headers, 2 means we're in content
-	my ($key, $val);
 	my $line;
-
-
+	my $sock_err = undef;
+	my $content_length = 0;
+	my $response;
+	my $hex_length;
+	
 	## Perl socket timeout has no effect during socket read.
 	## alarm is used (in eval block) to ensure that the control
 	## returns to the caller after the timeout period.
@@ -809,68 +881,87 @@ sub invoke_elem ($) {
 		local $SIG{ALRM} = sub { die "Timed Out" };
 		# Setting the alarm with $timeout value
 		alarm $timeout;
-
-		while (1) {
-			if ($using_ssl) {
-		    		$line = Net::SSLeay::ssl_read_CRLF($ssl);
-			} else {	
-		    		$line = <$sock>;
-			}
-
-			if ( !defined($line) || $line eq "" ) {
-				last;
-			}
-			if ( $state == 0 ) {
-				if ($line =~ s/^(HTTP\/\d+\.\d+)[ \t]+(\d+)[ \t]*([^\012]*)\012//) {
-					# HTTP/1.0 response or better
-					my($ver,$code,$msg) = ($1, $2, $3);
-					$msg =~ s/\015$//;
-					$response = HTTP::Response->new($code, $msg);
-					$response->protocol($ver);
-					$state = 1;
-					next;
-				} else {
-					if ($using_ssl) {
-						Net::SSLeay::free ($ssl);
-					}	
-					close($sock);
-					return $self->fail_response(13001,
-						"in Zapi::invoke, unable to parse "
-						."status response line - $line");
-				}
-			} elsif ( $state == 1 ) {
-				# ensure that we have read all headers.
-				# The headers will be terminated by two blank lines
-				if ( $line =~ /^\r*\n*$/ ) {
-					$state = 2;
-				} else {
-					if ($line =~ /^([a-zA-Z0-9_\-.]+)\s*:\s*(.*)/) {
-						$response->push_header($key, $val) if $key;
-						($key, $val) = ($1, $2);
-					} elsif ($line =~ /^\s+(.*)/ && $key) {
-						$val .= " $1";
-					} else {
-						$response->push_header(
-					    	"Client-Bad-Header-Line" => $line);
-					}
-				}
-			} elsif ( $state == 2 ) {
-				$xml .= $line;
-			} else {
-				if ($using_ssl) {
-					Net::SSLeay::free ($ssl);
-				}	
-				close($sock);
-				return $self->fail_response(13001,
-					"in Zapi::invoke, bad state value "
-					."while parsing response - $state\n");
-			}
+		
+		#Strip the headers 
+		if($using_ssl) {
+			$response = http_strip_headers($ssl, $using_ssl);						
+		} else {
+			$response = http_strip_headers($sock);			
 		}
+		
+		if ( !defined($response) || $response eq "" ) {   
+			$sock_err = $!;
+			if ($using_ssl) {
+				Net::SSLeay::free ($ssl);
+			}	
+			close($sock);
+			return $self->fail_response(13001,
+				"in Zapi::invoke, unable to parse "
+				."status response line - $line");			
+		}
+		
+		if($response->code() != 200) {
+				return;
+		}
+		$content_length = $response->content_length();
+		
 
+		#Read the content
+		
+		# For chunked encoding, get the length of the chunk from and pass that as 
+		# content_length
+		if($chunked_encoding) {
+			while(1) {
+				
+				# Length of the chunk will be in hex. Get and convert to decimal.					
+				if($using_ssl) {
+					$hex_length = join("",https_get_line($ssl));					
+				} else {
+					$hex_length = join("",http_get_line($sock));					
+				}
+				
+				$content_length = sprintf("%d", hex($hex_length));
+					
+				# Check for final chunk
+				if($content_length == 0) {
+					last;
+				}
+				
+				# Add 2 extra chars to get the CRLF
+				$content_length += 2;	
+				
+				if($using_ssl) {
+					$line = http_get_chunked_content($ssl, $content_length, $using_ssl);			
+				} else {
+					$line = http_get_chunked_content($sock, $content_length);			
+				}
+				
+				# Verify the CRLF and chop the values
+				if($line =~ /\r*\n*$/) {
+					chomp($line);
+					chop($line);
+					$xml .= $line;
+				} else {
+					return $self->fail_response(13001,
+							"in Zapi::invoke, unable to parse "
+							."content, invalid chunk terminator");
+				}							
+			}
+		} else {
+			if($using_ssl) {
+				$xml = http_get_content($ssl, $content_length, $using_ssl); 
+			} else {
+				$xml = http_get_content($sock, $content_length);
+			}		
+		}
+		
 		# Reset the alarm to 0 (i.e. no alarm)
-		alarm 0;
+		alarm 0;		
 	}; # end of eval
 
+	#Reverting the chunked_encoding value to zero
+	$chunked_encoding = 0;
+	
 	# Check if the 'die' was executed in the previous eval
 	if($@ and $@ =~ /Timed Out/) {
 		if ($using_ssl) {
@@ -880,19 +971,43 @@ sub invoke_elem ($) {
 		return $self->fail_response(13001,
 			"Timeout. Could not read API response.");
 	}
-
+	
+	# Handle socket receive errors
+	if($@ and $@ =~ /Incomplete Response/i) {
+		if ($using_ssl) {
+			Net::SSLeay::free ($ssl);
+		}	
+		close($sock);
+		return $self->fail_response(13001,"Failed to receive response from the server $server , ". $!); 
+	}
 
 	if ($using_ssl) {
    	  Net::SSLeay::free ($ssl);  			# Tear down connection
 	}	
 	close($sock);
 
+	# TODO - Currently we return the socket error only on Linux, 
+	# as there is no unique way to obtain the error on other platforms.
+	if ($sock_err) {
+		if ($^O eq "linux")
+		{
+			$sock_err = ". " . $sock_err;
+		} else {
+			$sock_err = undef;
+		}
+	}
 	if (!defined($response)) {
-		 return $self->fail_response(13001,"No response received");
+		 return $self->fail_response(13001,"No response received from server" . $sock_err);
 	}
 	my $code = $response->code();
-	if ( $code == 401 ) {
-		return $self->fail_response(13002,"Authorization failed");
+	if ($code != 200) {
+		if ( $code == 401 ) {
+			return $self->fail_response(13002,"Authorization failed");
+		}
+		return $self->fail_response(13001, "Server returned HTTP Error: " . $code . " " . $response->message());
+	}
+	if ($sock_err) {
+		return $self->fail_response(13001,"Unable to receive complete response from server" . $sock_err);
 	}
 	if ($self->is_debugging() > 0) {
 		if ($debug_style eq "NA_PRINT_DONT_PARSE") {
@@ -903,6 +1018,174 @@ sub invoke_elem ($) {
 	}
 	return $self->parse_xml($xml,$xmlrequest);
 }
+sub  trim { 
+	my $s = shift; 
+	$s =~ s/^\s+|\s+$//g; 
+	return $s ;
+};
+
+# This subroutine is used to strip the headers.
+
+sub http_strip_headers {
+	my $sock = shift;
+	my $is_ssl = shift;
+	my $header;
+	my ($key, $value);
+	
+	#Get the response status before proceeding
+	if($is_ssl) {
+		$header = join("",https_get_line($sock));
+	} else {
+		$header = join("",http_get_line($sock));
+	}
+	
+	
+	#Build $response
+	my($ver,$code,$msg) = split(" ",$header);		
+	$msg =~ s/\015$//;		
+	my $response = HTTP::Response->new($code, $msg);
+	$response->protocol($ver);	
+	
+	#If response!=200 then no need to proceed stripping the headers. Stop and return the response.
+	if($code != 200) {
+		return $response;
+	}
+
+	#Parse till the end of header is reached
+	#End of header will be identified by \r\n(empty)
+	while(1) {
+	
+		if($is_ssl) {
+			$header = join("",https_get_line($sock));
+		} else {
+			$header = join("",http_get_line($sock));
+		}
+		
+		if(length($header) == 0) {
+			return $response;
+		}		
+		if($header =~ /^([a-zA-Z0-9_\-.]+)\s*:\s*(.*)/) {
+			($key, $value) = ($1, $2);
+			$response->push_header($key, $value) if $key;	
+			if($key =~ /Content-Length/i) {
+				$response->content_length($value);
+			} elsif($key =~ /Transfer-Encoding/i and $value =~ /Chunked/i) {
+				$chunked_encoding = 1;
+			}
+		} else {
+			$response->push_header("Client-Bad-Header-Line" => $header);
+		
+		}
+			
+	}
+}
+
+# Get the content
+sub http_get_content {
+	my $sock = shift;
+	my $content_length = shift;
+	my $is_ssl = shift;
+	my $xml;
+	my $line;	
+	my $total_bytes_read = 0;
+	
+	while(1) {
+		if($is_ssl) {			
+			if(! defined $content_length) {
+				$line = Net::SSLeay::ssl_read_all($sock, $HTTP_LINE_BUFFER_SIZE);				
+			} else {
+				$line = Net::SSLeay::ssl_read_all($sock, $content_length); 
+			}					
+		} else {
+			$sock->recv($line, $HTTP_LINE_BUFFER_SIZE); 
+		}
+		my $len = length($line);
+		if(! defined $len) {
+			next if $!{EINTR} || $!{EAGAIN} || $!{EWOULDBLOCK} ;
+			die "Incomplete Response : $!";			
+		} elsif ( ! $len ) {
+			last;
+		}
+		$xml .= $line;
+		
+		if(defined $content_length) {
+			$total_bytes_read += $len;
+			if($total_bytes_read == $content_length) {
+				last;
+			}			
+		}					
+	}
+	return $xml;
+}
+
+sub http_get_chunked_content {
+	my $sock = shift;
+	my $content_length = shift;
+	my $is_ssl = shift;
+	my $xml;
+	my $line;
+	
+	for(my $i = 0 ; $i < $content_length ; ) {
+		
+		if($is_ssl) {
+			$line = Net::SSLeay::ssl_read_all($sock, $content_length - $i);
+		} else {
+			$sock->recv($line, $content_length - $i);		
+		}
+		my $len = length($line);
+		if(! defined $len) {
+			next if $!{EINTR} || $!{EAGAIN} || $!{EWOULDBLOCK} ;
+			die "Incomplete Response : $!";	
+		} elsif ( ! $len ) {
+			last;
+		}
+		$i += $len;
+		$xml .= $line;
+	}
+	return $xml;
+}
+# Get Header line for HTTPS
+sub https_get_line {
+	my $ssl = shift;
+	my @header;	
+	@header = Net::SSLeay::ssl_read_until($ssl, "\r\n", $HTTP_HEADER_BUFFER_SIZE);
+	
+	my $len = length(@header);
+	if(! defined $len ) {
+		next if $!{EINTR} || $!{EAGAIN} || $!{EWOULDBLOCK} ;
+		die "Incomplete Response : $!";	
+	} 
+	#Remove the extra "\r\n" at the end of the header
+	chomp(@header);
+	chop(@header);
+	return @header;
+}
+
+# Get Http header line
+sub http_get_line {
+	my $sock = shift;
+	my $i = 0;
+	my @header;
+	my $header_bit;
+	while($i <= $HTTP_HEADER_BUFFER_SIZE) {
+		$sock->recv($header_bit, 1);
+		
+		if(! defined $header_bit) {
+			next if $!{EINTR} || $!{EAGAIN} || $!{EWOULDBLOCK} ;
+			die "Incomplete Response : $!";	
+		} 
+		
+		if($header_bit =~ /\n/ and $header[$i-1] =~ /\r/) {
+			pop @header;
+			return @header;
+		}
+		push @header, $header_bit;
+		$i++;
+	}
+	return @header;
+}
+
+
 
 #============================================================#
 
@@ -1017,7 +1300,6 @@ sub server_end_handler {
 		# Pop the element and add it as a child
 		# to its parent.
 		my $n = pop(@$::ZAPI_stack);
-		my $ns = $n->sprintf();
 		my $i = $#$::ZAPI_stack;
 
 		$::ZAPI_stack->[$i]->child_add($n);
@@ -1488,6 +1770,59 @@ sub get_originator_id () {
 	return $self->{originator_id};
 }
 
+=head2 set_target_cluster_uuid($target_cluster_uuid)
+  Sets the UUID of a remote peered cluster to which the ONTAP APIs are to be
+  redirected from current cluster (identified by this NaServer instance).
+=cut
+
+sub set_target_cluster_uuid ($$) {
+	my $self = shift;
+	my $target_cluster_uuid = shift;
+
+	$self->{target_cluster_uuid} = $target_cluster_uuid;
+	return 1;
+}
+
+=head2 get_target_cluster_uuid()
+  Gets the UUID of the remote peered cluster to which the ONTAP APIs are
+  redirected from current cluster (identified by this NaServer instance).
+=cut
+
+sub get_target_cluster_uuid () {
+	my $self = shift;
+	return $self->{target_cluster_uuid};
+}
+
+
+=head2 set_target_vserver_name($target_vserver_name)
+  Sets the name of a remote peered vserver to which the ONTAP APIs are to be
+  redirected from current cluster (identified by this NaServer instance).
+  Note: vserver tunneling must be enabled on the current NaServer instance
+  using set_vserver() to set the target vserver name for redirecting the APIs.
+=cut
+
+sub set_target_vserver_name ($$) {
+	my $self = shift;
+	my $target_vserver_name = shift;
+
+	if($self->{vfiler} eq "") {
+		return 0;
+	}
+
+	$self->{target_vserver_name} = $target_vserver_name;
+	return 1;
+}
+
+=head2 get_target_vserver_name()
+  Gets the name of the remote peered vserver to which the ONTAP APIs are
+  redirected from current cluster (identified by this NaServer instance).
+=cut
+
+sub get_target_vserver_name () {
+	my $self = shift;
+	return $self->{target_vserver_name};
+}
+
 sub set_timeout ($$) {
 	my $self = shift;
 	my $timeout = shift;
@@ -1766,8 +2101,13 @@ sub init_ssl_context($) {
 	}
 	$self->{ctx} = Net::SSLeay::CTX_new() or return $self->fail_response(13001,
 			"in NaServer::init_ssl_context - failed to create SSL_CTX ");
-		Net::SSLeay::CTX_set_options($self->{ctx}, &Net::SSLeay::OP_ALL)
-		and Net::SSLeay::die_if_ssl_error("ssl ctx set options");
+	if($self->{use_sslv3}) {
+		Net::SSLeay::CTX_set_options($self->{ctx}, &Net::SSLeay::OP_ALL | &Net::SSLeay::OP_NO_SSLv2 )
+				and Net::SSLeay::die_if_ssl_error("ssl ctx set options");
+	} else {
+		Net::SSLeay::CTX_set_options($self->{ctx}, &Net::SSLeay::OP_ALL | &Net::SSLeay::OP_NO_SSLv2 |
+				&Net::SSLeay::OP_NO_SSLv3)and Net::SSLeay::die_if_ssl_error("ssl ctx set options");
+	}
 }
 
 sub DESTROY ($) {
@@ -2001,5 +2341,37 @@ sub AUTOLOAD {
 	}
 
 	return $hash;
+}
+
+#============================================================#
+=head2 set_sslv3($enable)
+
+  Enables or disables SSLv3 protocol for use over HTTPS transport.
+  By default, SSLv3 protocol is disabled.
+
+=cut
+sub set_sslv3() {
+	my $self = shift;
+	my $enable = shift;
+
+	if($enable != 1 and $enable != 0) {
+		die "NaServer::set_sslv3 - Invalid parameter specified. Valid parameter is 1 (enable) or 0 (disable). (13001)\n";
+	}
+	$self->{use_sslv3} = $enable;
+	$self->init_ssl_context();
+}
+
+
+#============================================================#
+=head2 is_sslv3()
+	Determines whether SSLv3 protocol is enabled for use over 
+	HTTPS Transport.
+	Return 1 if SSLV3 is enabled, else return 0.
+=cut
+sub is_sslv3()
+{
+	my $self = shift;	
+	return $self->{use_sslv3};
+	
 }
 

@@ -1,10 +1,10 @@
 ##
 # $Id$
 # 
-# Copyright (c) 2014 Network Appliance, Inc.
+# Copyright (c) 2015 Network Appliance, Inc.
 # All rights reserved.
 # 
-# This file was generated at Jan 14, 2014 3:33:16 AM
+# This file was generated at Nov 13, 2015 7:20:02 AM
 ##
 
 package OCUMAPI;
@@ -5196,11 +5196,11 @@ OCUMAPI - Contains the definitions and description of API Bindings for OnCommand
 
 =head1 DESCRIPTION
 
-NetApp Manageability SDK 5.2 provides support for Perl API bindings for both Data ONTAP APIs and OnCommand Unified Manager APIs.
+NetApp Manageability SDK 5.3.1 provides support for Perl API bindings for both Data ONTAP APIs and OnCommand Unified Manager APIs.
 The Perl API bindings libraries contain interfaces to establish a connection with either the Data ONTAP server or the OnCommand Unified Manager server.
 By using these libraries, you can create Perl applications to access and manage the Data ONTAP server or OnCommand Unified Manager server.
 
-NetApp Manageability SDK 5.2 Perl API bindings provide a runtime library NaServer.pm, which is available at <installation_folder>/lib/perl/NetApp.
+NetApp Manageability SDK 5.3.1 Perl API bindings provide a runtime library NaServer.pm, which is available at <installation_folder>/lib/perl/NetApp.
 This library file enables you to establish a server connection, send requests and receive responses, and interpret error messages.
 Each binding can be called as a subroutine of NaServer module which in turn invokes the corresponding Data ONTAP or OnCommand Unified Manager API.
 
