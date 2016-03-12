@@ -1118,6 +1118,7 @@ sub get_volume_space {
 ##############################################
 
 sub calc_space_health {
+
 	# This function controls the logic flow for determining the state of space checks.
 	my ($hrefSpaceInfo, $strWarning, $strCritical) = @_;
 	my ($hrefWarnThresholds, $hrefCritThresholds) = space_threshold_converter($strWarning, $strCritical);
@@ -1127,19 +1128,36 @@ sub calc_space_health {
 	my $hrefObjectState;
 
 	foreach my $strObj (keys %$hrefSpaceInfo) {
+
 		$intObjectCount = $intObjectCount + 1;
+
 		# Don't check an object that has no space or is offline.
 		if (defined($hrefSpaceInfo->{$strObj}->{'space-total'})) {
+
 			if ($hrefSpaceInfo->{$strObj}->{'space-total'} == 0) {
+
 				next;
 			}
 		}
+
+		# Don't check an object which is restricted
+		if ($hrefSpaceInfo->{$strObj}->{'state'} eq "restricted") {
+
+			delete($hrefSpaceInfo->{$strObj});
+			next;
+		}
+
 		# If the monitored object is not online then test to see if it matches a user defined bad state.
 		if ($hrefSpaceInfo->{$strObj}->{'state'} ne "online") {
+
 			if (defined($hrefCritThresholds->{'strings'}) || defined($hrefWarnThresholds->{'strings'})) {
+
 				my $bObjectRemoved = 0;
+
 				foreach my $strStateThresh (@{$hrefCritThresholds->{'strings'}}) {
+
 					if ($hrefSpaceInfo->{$strObj}->{'state'} eq $strStateThresh) {
+
 						my $strNewMessage = $strObj . " is " . $strStateThresh;
 						$strOutput = get_nagios_description($strOutput, $strNewMessage);
 						$intState = get_nagios_state($intState, 2);
@@ -1147,48 +1165,63 @@ sub calc_space_health {
 						$bObjectRemoved = 1;
 					}
 				}
+
 				if ($bObjectRemoved) {
+
 					next;
 				}
+
 				foreach my $strStateThresh (@{$hrefWarnThresholds->{'strings'}}) {
-                                        if ($hrefSpaceInfo->{$strObj}->{'state'} eq $strStateThresh) {
-                                                my $strNewMessage = $strObj . " is " . $strStateThresh;
-                                                $strOutput = get_nagios_description($strOutput, $strNewMessage);
-                                                $intState = get_nagios_state($intState, 1);
+
+					if ($hrefSpaceInfo->{$strObj}->{'state'} eq $strStateThresh) {
+
+						my $strNewMessage = $strObj . " is " . $strStateThresh;
+						$strOutput = get_nagios_description($strOutput, $strNewMessage);
+						$intState = get_nagios_state($intState, 1);
 						delete($hrefSpaceInfo->{$strObj});
-                                        }
-                                }
-                        } elsif ($hrefSpaceInfo->{$strObj}->{'state'} eq "offline") {
-                                delete($hrefSpaceInfo->{$strObj});
-                        }
-                }
+					}
+				}            
+			}
+
+			elsif ($hrefSpaceInfo->{$strObj}->{'state'} eq "offline") {
+
+				delete($hrefSpaceInfo->{$strObj});
+			}
+		}
 		
 		# Test to see if the monitored object is on it's home node and raise an alert if it is not.
 		if (defined($hrefSpaceInfo->{$strObj}->{'home-owner'}) && defined($hrefSpaceInfo->{$strObj}->{'current-owner'})) {
+
 			if ($hrefSpaceInfo->{$strObj}->{'home-owner'} ne $hrefSpaceInfo->{$strObj}->{'current-owner'}) {
+
 				if ($hrefCritThresholds->{'owner'}) {
+
 					my $strNewMessage = $strObj . " not on home! Home: " . $hrefSpaceInfo->{$strObj}->{'home-owner'} . " Current: " . $hrefSpaceInfo->{$strObj}->{'current-owner'};
 					$strOutput = get_nagios_description($strOutput, $strNewMessage);
-                                        $intState = get_nagios_state($intState, 2);
-				} elsif ($hrefWarnThresholds->{'owner'}) {
+					$intState = get_nagios_state($intState, 2);
+				}
+
+				elsif ($hrefWarnThresholds->{'owner'}) {
+
 					my $strNewMessage = $strObj . " not on home! Home: " . $hrefSpaceInfo->{$strObj}->{'home-owner'} . " Current: " . $hrefSpaceInfo->{$strObj}->{'current-owner'};
-                                        $strOutput = get_nagios_description($strOutput, $strNewMessage);
-                                        $intState = get_nagios_state($intState, 1);
+					$strOutput = get_nagios_description($strOutput, $strNewMessage);
+					$intState = get_nagios_state($intState, 1);
 				}
 			}
 		}
-        }
+	}
 
-		# Test to see if the monitored object has crossed a defined space threshhold.
-        ($intState, $strOutput, $hrefSpaceInfo) = space_threshold_helper($intState, $strOutput, $hrefSpaceInfo, $hrefCritThresholds, 2);
-        ($intState, $strOutput, $hrefSpaceInfo) = space_threshold_helper($intState, $strOutput, $hrefSpaceInfo, $hrefWarnThresholds, 1);
+	# Test to see if the monitored object has crossed a defined space threshhold.
+	($intState, $strOutput, $hrefSpaceInfo) = space_threshold_helper($intState, $strOutput, $hrefSpaceInfo, $hrefCritThresholds, 2);
+	($intState, $strOutput, $hrefSpaceInfo) = space_threshold_helper($intState, $strOutput, $hrefSpaceInfo, $hrefWarnThresholds, 1);
 
-		# If everything looks ok and no output has been defined then set the message to display OK.
-        if (!(defined($strOutput))) {
-                $strOutput = "OK - No problems found ($intObjectCount checked)";
-        }
+	# If everything looks ok and no output has been defined then set the message to display OK.
+	if (!(defined($strOutput))) {
 
-        return $intState, $strOutput;
+		$strOutput = "OK - No problems found ($intObjectCount checked)";
+	}
+
+	return $intState, $strOutput;
 }
 
 sub space_threshold_helper {
