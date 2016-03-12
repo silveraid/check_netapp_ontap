@@ -975,8 +975,10 @@ sub get_aggregate_space {
 ##############################################
 
 sub get_snap_space {
+
 	# Get snapshot monitoring objects 
 	my ($nahStorage, $strVHost) = @_;
+
 	# Set up variables to handle the API queries for snapshot retrieval.
         my $nahVolIterator = NaElement->new("volume-get-iter");
 	my $nahQuery = NaElement->new("query");
@@ -988,47 +990,64 @@ sub get_snap_space {
 
 	# Narrow search to only the requested node if configured by user with the -n option
 	if (defined($strVHost)) {
+
                 $nahVolIterator->child_add($nahQuery);
                 $nahQuery->child_add($nahVolInfo);
                 $nahVolInfo->child_add($nahVolIdInfo);
                 $nahVolIdInfo->child_add_string("owning-vserver-name", $strVHost);
         }
 
-		# The active tag is a feature of the NetApp API that allows you to do queries in batches. In this case we are getting records in batches of 100.
+	# The active tag is a feature of the NetApp API that allows you to do queries in batches. In this case we are getting records in batches of 100.
         $nahVolIterator->child_add_string("max-records", 100);
         $nahVolIterator->child_add($nahTag);
-        while(defined($strActiveTag)) {
+        
+	while(defined($strActiveTag)) {
+
                 if ($strActiveTag ne "") {
+
                     $nahTag->set_content($strActiveTag);
                 }
 
-				# Invoke the request.
+		# Invoke the request.
                 my $nahResponse = $nahStorage->invoke_elem($nahVolIterator);
                 validate_ontapi_response($nahResponse, "Failed volume query: ");
 
                 $strActiveTag = $nahResponse->child_get_string("next-tag");
 
-				# Stop if there are no more records.
+		# Stop if there are no more records.
                 if ($nahResponse->child_get_string("num-records") == 0) {
+
                         last;
                 }
 
-				# Assign all the retrieved information to a hash 
+		# Assign all the retrieved information to a hash 
                 foreach my $nahVol ($nahResponse->child_get("attributes-list")->children_get()) {
 
                         my $strVolName = $nahVol->child_get("volume-id-attributes")->child_get_string("name");
                         my $strVolOwner = $nahVol->child_get("volume-id-attributes")->child_get_string("owning-vserver-name");
                         $strVolName = $strVolOwner . "/" . $strVolName;
 
-						# Don't monitor a volume that is currently being moved as it will result in errors.
+			# Don't monitor a volume that is currently being moved as it will result in errors.
                         if (defined($nahVol->child_get("volume-state-attributes")->child_get_string("is-moving")) &&
                             $nahVol->child_get("volume-state-attributes")->child_get_string("is-moving") eq "true") {
+
                                 next;
                         }
 
+			# Don't check volumes with type TMP (7-Mode Transition Tool)
+			# TEST-ME
+			if ($nahVol->child_get("volume-id-attributes")->child_get_string("type") eq "tmp") {
+
+				next;
+			}
+
                         if ($nahVol->child_get("volume-state-attributes")->child_get_string("state") ne "online") {
+
                                 $hshVolUsage{$strVolName}{'state'} = $nahVol->child_get("volume-state-attributes")->child_get_string("state");
-                        } else {
+                        }
+
+			else {
+
                                 $hshVolUsage{$strVolName}{'state'} = $nahVol->child_get("volume-state-attributes")->child_get_string("state");
                                 $hshVolUsage{$strVolName}{'space-total'} = $nahVol->child_get("volume-space-attributes")->child_get_string("size-available-for-snapshots");
                                 $hshVolUsage{$strVolName}{'space-used'} = $nahVol->child_get("volume-space-attributes")->child_get_string("size-used-by-snapshots");
@@ -1046,19 +1065,23 @@ sub get_snap_space {
 ##############################################
 
 sub get_volume_space {
+
 	# Get volume monitoring objects 
 	my ($nahStorage, $strVHost) = @_;
+
 	# Set up variables to handle the API queries for volume retrieval.
 	my $nahVolIterator = NaElement->new("volume-get-iter");
 	my $nahQuery = NaElement->new("query");
 	my $nahVolInfo = NaElement->new("volume-attributes");
 	my $nahVolIdInfo = NaElement->new("volume-id-attributes");
-    my $nahTag = NaElement->new("tag");
+
+	my $nahTag = NaElement->new("tag");
 	my $strActiveTag = "";
 	my %hshVolUsage;
 
 	# Narrow search to only the requested node if configured by user with the -n option
 	if (defined($strVHost)) {
+
 		$nahVolIterator->child_add($nahQuery);
 		$nahQuery->child_add($nahVolInfo);
 		$nahVolInfo->child_add($nahVolIdInfo);
@@ -1066,23 +1089,28 @@ sub get_volume_space {
 	}
 	
 	# The active tag is a feature of the NetApp API that allows you to do queries in batches. In this case we are getting records in batches of 100.
-    $nahVolIterator->child_add_string("max-records", 100);
-    $nahVolIterator->child_add($nahTag);
+	$nahVolIterator->child_add_string("max-records", 100);
+	$nahVolIterator->child_add($nahTag);
+
 	while(defined($strActiveTag)) {
-        if ($strActiveTag ne "") {
-            $nahTag->set_content($strActiveTag);
-        }
+
+		if ($strActiveTag ne "") {
+
+			$nahTag->set_content($strActiveTag);
+		}
 		
 		$nahVolIterator->child_add_string("max-records", 100);
+
 		# Invoke the request.
 		my $nahResponse = $nahStorage->invoke_elem($nahVolIterator);
                 validate_ontapi_response($nahResponse, "Failed volume query: ");
-
 		$strActiveTag = $nahResponse->child_get_string("next-tag");
+
 		# Stop if there are no more records.
-                if ($nahResponse->child_get_string("num-records") == 0) {
-                        last;
-                }
+		if ($nahResponse->child_get_string("num-records") == 0) {
+
+			last;
+		}
 
 		# Assign all the retrieved information to a hash 
 		foreach my $nahVol ($nahResponse->child_get("attributes-list")->children_get()) {
@@ -1093,19 +1121,25 @@ sub get_volume_space {
 
 			# Don't monitor a volume that is currently being moved as it will result in errors.
 			if (defined($nahVol->child_get("volume-state-attributes")->child_get_string("is-moving"))) {
+
 				if ($nahVol->child_get("volume-state-attributes")->child_get_string("is-moving") eq "true") {
+
 					next;
 				}
 			}
 
 			if ($nahVol->child_get("volume-state-attributes")->child_get_string("state") ne "online") {
+
 				$hshVolUsage{$strVolName}{'state'} = $nahVol->child_get("volume-state-attributes")->child_get_string("state");
-			} else {
+			}
+
+			else {
+
 				$hshVolUsage{$strVolName}{'state'} = $nahVol->child_get("volume-state-attributes")->child_get_string("state");
 				$hshVolUsage{$strVolName}{'space-total'} = $nahVol->child_get("volume-space-attributes")->child_get_string("size-total");
 				$hshVolUsage{$strVolName}{'space-used'} = $nahVol->child_get("volume-space-attributes")->child_get_string("size-used");
-                        	$hshVolUsage{$strVolName}{'inodes-total'} = $nahVol->child_get("volume-inode-attributes")->child_get_string("files-total");
-                        	$hshVolUsage{$strVolName}{'inodes-used'} = $nahVol->child_get("volume-inode-attributes")->child_get_string("files-used");
+				$hshVolUsage{$strVolName}{'inodes-total'} = $nahVol->child_get("volume-inode-attributes")->child_get_string("files-total");
+				$hshVolUsage{$strVolName}{'inodes-used'} = $nahVol->child_get("volume-inode-attributes")->child_get_string("files-used");
 			}
 		}
 	}
