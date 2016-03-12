@@ -1034,8 +1034,7 @@ sub get_snap_space {
                                 next;
                         }
 
-			# Don't check volumes with type TMP (7-Mode Transition Tool)
-			# TEST-ME
+			# Don't check snapshots of volumes with type TMP (7-Mode Transition Tool)
 			if ($nahVol->child_get("volume-id-attributes")->child_get_string("type") eq "tmp") {
 
 				next;
@@ -1126,6 +1125,12 @@ sub get_volume_space {
 
 					next;
 				}
+			}
+
+			# Don't check volumes with type TMP (7-Mode Transition Tool)
+			if ($nahVol->child_get("volume-id-attributes")->child_get_string("type") eq "tmp") {
+
+				next;
 			}
 
 			if ($nahVol->child_get("volume-state-attributes")->child_get_string("state") ne "online") {
