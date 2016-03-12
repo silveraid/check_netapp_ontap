@@ -1661,9 +1661,6 @@ my ($intState, $strOutput);
 # Note: I've just commented the first option as they are all the same in terms of process order.
 if ($strOption eq "volume_health") {
 
-	# * COMPLETE % TESTED
-	# Space used, Inode used, offline
-	
 	# Request the information required to calculate the health of the related object from the filer. 
 	my $hrefVolInfo = get_volume_space($nahStorage, $strVHost);
 
@@ -1672,19 +1669,37 @@ if ($strOption eq "volume_health") {
 		$hrefVolInfo = filter_object($hrefVolInfo, $strModifier);
 	}
 
+	# Setup default warning threshold value
+	if (!defined $strWarning) {
+		$strWarning = "90%";
+	}
+
+	# Setup default critical threshold value
+	if (!defined $strCritical) {
+		$strCritical = "95%";
+	}
+
 	# Calculate the resulting health of the retrieved objects based on the metrics provided by the user (or in some cases the pre-defined metrics in the script).
 	($intState, $strOutput) = calc_space_health($hrefVolInfo, $strWarning, $strCritical);
 }
 
 elsif ($strOption eq "aggregate_health") {
 
-	# * COMPLETE % TESTED
-	# Space used, Inodes used, offline, is-home
 	my $hrefAggInfo = get_aggregate_space($nahStorage, $strVHost);
 
 	if (defined($strModifier)) {
-                $hrefAggInfo = filter_object($hrefAggInfo, $strModifier);
-        }
+		$hrefAggInfo = filter_object($hrefAggInfo, $strModifier);
+	}
+
+	# Setup default warning threshold value
+	if (!defined $strWarning) {
+		$strWarning = "90%";
+	}
+
+	# Setup default critical threshold value
+	if (!defined $strCritical) {
+		$strCritical = "95%";
+	}
 
 	($intState, $strOutput) = calc_space_health($hrefAggInfo, $strWarning, $strCritical);
 }
