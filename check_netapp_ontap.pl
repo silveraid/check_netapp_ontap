@@ -1660,6 +1660,7 @@ my ($intState, $strOutput);
 # Select the requested option and run the necessary function to calculate its health.
 # Note: I've just commented the first option as they are all the same in terms of process order.
 if ($strOption eq "volume_health") {
+
 	# * COMPLETE % TESTED
 	# Space used, Inode used, offline
 	
@@ -1673,7 +1674,10 @@ if ($strOption eq "volume_health") {
 
 	# Calculate the resulting health of the retrieved objects based on the metrics provided by the user (or in some cases the pre-defined metrics in the script).
 	($intState, $strOutput) = calc_space_health($hrefVolInfo, $strWarning, $strCritical);
-} elsif ($strOption eq "aggregate_health") {
+}
+
+elsif ($strOption eq "aggregate_health") {
+
 	# * COMPLETE % TESTED
 	# Space used, Inodes used, offline, is-home
 	my $hrefAggInfo = get_aggregate_space($nahStorage, $strVHost);
@@ -1683,7 +1687,10 @@ if ($strOption eq "volume_health") {
         }
 
 	($intState, $strOutput) = calc_space_health($hrefAggInfo, $strWarning, $strCritical);
-} elsif ($strOption eq "snapshot_health") {
+}
+
+elsif ($strOption eq "snapshot_health") {
+
 	# * COMPLETE % TESTED
 	# Space used, Inode used, offline
 	my $hrefSnapInfo = get_snap_space($nahStorage, $strVHost);
@@ -1693,7 +1700,10 @@ if ($strOption eq "volume_health") {
         }
 
         ($intState, $strOutput) = calc_space_health($hrefSnapInfo, $strWarning, $strCritical);
-}  elsif ($strOption eq "quota_health") {
+}
+
+elsif ($strOption eq "quota_health") {
+
         # * COMPLETE
         # quota used, files used
         my $hrefQuotaInfo = get_quota_space($nahStorage, $strVHost);
@@ -1703,7 +1713,10 @@ if ($strOption eq "volume_health") {
         }
 
         ($intState, $strOutput) = calc_quota_health($hrefQuotaInfo, $strWarning, $strCritical);
-} elsif ($strOption eq "snapmirror_health") {
+}
+
+elsif ($strOption eq "snapmirror_health") {
+
 	# * COMPLETE % TESTED
 	# Snapmirror lag time, health
 	my $hrefSMInfo = get_snapmirror_lag($nahStorage, $strVHost);
@@ -1713,7 +1726,10 @@ if ($strOption eq "volume_health") {
         }
 
 	($intState, $strOutput) = calc_snapmirror_health($hrefSMInfo, $strWarning, $strCritical);
-} elsif ($strOption eq "filer_hardware_health") {
+}
+
+elsif ($strOption eq "filer_hardware_health") {
+
 	# * COMPLETE
 	# Filer fan failure, Filer power supply failure, Filer temperature health, Filer battery failure
 
@@ -1724,7 +1740,10 @@ if ($strOption eq "volume_health") {
         }
 
 	($intState, $strOutput) = calc_filer_hardware_health($hrefFilerHWInfo, $strWarning, $strCritical);
-} elsif ($strOption eq "interface_health") {
+}
+
+elsif ($strOption eq "interface_health") {
+
 	# * COMPLETE
 	# LIF status, LIF is on home node, LIF on home port
 
@@ -1735,7 +1754,10 @@ if ($strOption eq "volume_health") {
         }
 
         ($intState, $strOutput) = calc_interface_health($hrefInterfaceInfo, $strWarning, $strCritical);
-} elsif ($strOption eq "port_health") {
+}
+
+elsif ($strOption eq "port_health") {
+
         # * COMPLETE
         # Port status
 
@@ -1746,7 +1768,10 @@ if ($strOption eq "volume_health") {
         }
 
         ($intState, $strOutput) = calc_interface_health($hrefPortInfo, $strWarning, $strCritical);
-} elsif ($strOption eq "netapp_alarms") {
+}
+
+elsif ($strOption eq "netapp_alarms") {
+
 	# * COMPLETE
 	# Diagnostic and dashboard alarms
 	
@@ -1757,7 +1782,10 @@ if ($strOption eq "volume_health") {
         }
 
         ($intState, $strOutput) = calc_netapp_alarm_health($hrefAlarmInfo, $strWarning, $strCritical);
-} elsif ($strOption eq "cluster_health") {
+}
+
+elsif ($strOption eq "cluster_health") {
+
 	# * COMPLETE 
 	# Cluster health
 
@@ -1768,7 +1796,10 @@ if ($strOption eq "volume_health") {
         }
 
         ($intState, $strOutput) = calc_cluster_health($hrefClusterInfo, $strWarning, $strCritical);
-} elsif ($strOption eq "disk_health") {
+}
+
+elsif ($strOption eq "disk_health") {
+
 	# * COMPLETE
 	# Disk health -wc ????
 
