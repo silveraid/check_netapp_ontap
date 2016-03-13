@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 
 #   Netapp C-mode monitoring plugin for Nagios
-#   Written by Frank Felhoffer, D'Haese Willem, Murphy John, and others
-#   v2.5.10.1
+#   Written by Frank Felhoffer, Willem D'Haese, John Murphy, and others
+my $strVersion = "v2.5.10.1";
 
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -1078,7 +1078,8 @@ sub get_volume_space {
 	my $strActiveTag = "";
 	my %hshVolUsage;
 
-	# Narrow search to only the requested node if configured by user with the -n option
+	# Narrow search to only the requested node if configured 
+	# by user with the -n option
 	if (defined($strVHost)) {
 
 		$nahVolIterator->child_add($nahQuery);
@@ -1087,7 +1088,9 @@ sub get_volume_space {
 		$nahVolIdInfo->child_add_string("owning-vserver-name", $strVHost);
 	}
 	
-	# The active tag is a feature of the NetApp API that allows you to do queries in batches. In this case we are getting records in batches of 100.
+	# The active tag is a feature of the NetApp API that allows you to 
+	# do queries in batches. In this case we are getting records in 
+	# batches of 100.
 	$nahVolIterator->child_add_string("max-records", 100);
 	$nahVolIterator->child_add($nahTag);
 
@@ -1102,7 +1105,7 @@ sub get_volume_space {
 
 		# Invoke the request.
 		my $nahResponse = $nahStorage->invoke_elem($nahVolIterator);
-                validate_ontapi_response($nahResponse, "Failed volume query: ");
+		validate_ontapi_response($nahResponse, "Failed volume query: ");
 		$strActiveTag = $nahResponse->child_get_string("next-tag");
 
 		# Stop if there are no more records.
@@ -1116,7 +1119,14 @@ sub get_volume_space {
 
 			my $strVolName = $nahVol->child_get("volume-id-attributes")->child_get_string("name");
 			my $strVolOwner = $nahVol->child_get("volume-id-attributes")->child_get_string("owning-vserver-name");
+			my $strVolState = $nahVol->child_get("volume-state-attributes")->child_get_string("state");
 			$strVolName = $strVolOwner . "/" . $strVolName;
+
+			# Ignore volumes with state not online (E.g. offline, restricted, etc)
+			if ($strVolState ne "online") {
+
+				next;
+			}
 
 			# Don't monitor a volume that is currently being moved as it will result in errors.
 			if (defined($nahVol->child_get("volume-state-attributes")->child_get_string("is-moving"))) {
@@ -1133,19 +1143,11 @@ sub get_volume_space {
 				next;
 			}
 
-			if ($nahVol->child_get("volume-state-attributes")->child_get_string("state") ne "online") {
-
-				$hshVolUsage{$strVolName}{'state'} = $nahVol->child_get("volume-state-attributes")->child_get_string("state");
-			}
-
-			else {
-
-				$hshVolUsage{$strVolName}{'state'} = $nahVol->child_get("volume-state-attributes")->child_get_string("state");
-				$hshVolUsage{$strVolName}{'space-total'} = $nahVol->child_get("volume-space-attributes")->child_get_string("size-total");
-				$hshVolUsage{$strVolName}{'space-used'} = $nahVol->child_get("volume-space-attributes")->child_get_string("size-used");
-				$hshVolUsage{$strVolName}{'inodes-total'} = $nahVol->child_get("volume-inode-attributes")->child_get_string("files-total");
-				$hshVolUsage{$strVolName}{'inodes-used'} = $nahVol->child_get("volume-inode-attributes")->child_get_string("files-used");
-			}
+			$hshVolUsage{$strVolName}{'state'} = $strVolState;
+			$hshVolUsage{$strVolName}{'space-total'} = $nahVol->child_get("volume-space-attributes")->child_get_string("size-total");
+			$hshVolUsage{$strVolName}{'space-used'} = $nahVol->child_get("volume-space-attributes")->child_get_string("size-used");
+			$hshVolUsage{$strVolName}{'inodes-total'} = $nahVol->child_get("volume-inode-attributes")->child_get_string("files-total");
+			$hshVolUsage{$strVolName}{'inodes-used'} = $nahVol->child_get("volume-inode-attributes")->child_get_string("files-used");
 		}
 	}
 
@@ -1431,8 +1433,10 @@ sub space_threshold_converter {
 }
 
 sub space_to_bytes {
-		# Convert human readable magnitude to bytes.
+
+	# Convert human readable magnitude to bytes.
         my $strInput = shift;
+
         $strInput =~ m/([0-9]*)([KMGT]?B)/;
         my $intValue = $1;
         my $strMagnitude = $2;
@@ -1476,10 +1480,9 @@ sub space_to_human_readable {
 ##############################################
 
 sub help {
-		# It helps :) I hope.
-        my $strVersion = "v0.6 b190514";
+
         print "\ncheck_netapp_ontapi version: $strVersion\n";
-        print "By John Murphy <john.murphy\@roshamboot.org>, GNU GPL License\n";
+        print "By Frank Felhoffer, Willem D'Haese, John Murphy, and others, GNU GPL License\n";
         print "\nUsage: ./check_netapp_ontapi.pl -H <hostname> -u <username> -p <password> -o <option> [ -w <warning_thresh> -c <critical_thresh> -m <include|exclude,pattern1,pattern2,etc> ]\n\n";
         print <<EOL;
 --hostname, -H
