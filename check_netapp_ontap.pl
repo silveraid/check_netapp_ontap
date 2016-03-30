@@ -19,12 +19,16 @@ my $strVersion = "v2.5.10.1";
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+use lib "NetApp SDK";
+
 use warnings;
 use strict;
 use NaServer;
 use NaElement;
 use Getopt::Long;
 use POSIX;
+
+my $verbose;
 
 ##############################################
 ## DISK HEALTH
@@ -1068,6 +1072,8 @@ sub get_volume_space {
 	# Get volume monitoring objects 
 	my ($nahStorage, $strVHost) = @_;
 
+	$verbose && print("get_volume_space\n");
+
 	# Set up variables to handle the API queries for volume retrieval.
 	my $nahVolIterator = NaElement->new("volume-get-iter");
 	my $nahQuery = NaElement->new("query");
@@ -1122,9 +1128,19 @@ sub get_volume_space {
 			my $strVolState = $nahVol->child_get("volume-state-attributes")->child_get_string("state");
 			$strVolName = $strVolOwner . "/" . $strVolName;
 
+			$verbose && print("  + " . $strVolName . ": ");
+
+			# Volume statue is undefined ...
+			if (!defined($strVolState)) {
+
+				$verbose && print("state undefined!\n");
+				next;
+			}
+
 			# Ignore volumes with state not online (E.g. offline, restricted, etc)
 			if ($strVolState ne "online") {
 
+				$verbose && print("!online\n");
 				next;
 			}
 
@@ -1133,6 +1149,7 @@ sub get_volume_space {
 
 				if ($nahVol->child_get("volume-state-attributes")->child_get_string("is-moving") eq "true") {
 
+					$verbose && print("is-moving\n");
 					next;
 				}
 			}
@@ -1140,8 +1157,11 @@ sub get_volume_space {
 			# Don't check volumes with type TMP (7-Mode Transition Tool)
 			if ($nahVol->child_get("volume-id-attributes")->child_get_string("type") eq "tmp") {
 
+				$verbose && print("type == tmp\n");
 				next;
 			}
+
+			$verbose && print("OK\n");
 
 			$hshVolUsage{$strVolName}{'state'} = $strVolState;
 			$hshVolUsage{$strVolName}{'space-total'} = $nahVol->child_get("volume-space-attributes")->child_get_string("size-total");
@@ -1168,6 +1188,8 @@ sub calc_space_health {
 	my $strOutput;
 	my $hrefObjectState;
 
+	$verbose && print("calc_space_health called with warning: " . $strWarning . ", critical: " . $strCritical . "\n");
+
 	foreach my $strObj (keys %$hrefSpaceInfo) {
 
 		$intObjectCount = $intObjectCount + 1;
@@ -1177,6 +1199,7 @@ sub calc_space_health {
 
 			if ($hrefSpaceInfo->{$strObj}->{'space-total'} == 0) {
 
+				$verbose && print("space-total == 0\n");
 				next;
 			}
 		}
@@ -1185,6 +1208,7 @@ sub calc_space_health {
 		if ($hrefSpaceInfo->{$strObj}->{'state'} eq "restricted") {
 
 			delete($hrefSpaceInfo->{$strObj});
+			$verbose && print("restricted\n");
 			next;
 		}
 
@@ -1266,102 +1290,156 @@ sub calc_space_health {
 }
 
 sub space_threshold_helper {
+
 	# Test the various monitored object values against the thresholds provided by the user.
 	my ($intState, $strOutput, $hrefVolInfo, $hrefThresholds, $intAlertLevel) = @_;
 
+	$verbose && print("__space_threshold_helper__\n");
+
 	foreach my $strVol (keys %$hrefVolInfo) {
+
 		my $bMarkedForRemoval = 0;
 
 		# Test if various thresholds are defined and if they are then test if the monitored object exceeds them.
 		if (defined($hrefThresholds->{'space-percent'}) || defined($hrefThresholds->{'space-count'})) {
+
 			# Prepare certain variables pre-check to reduce code duplication.
-		#	if (defined($hrefVolInfo->{$strVol}->{'space-total'})) {
-				my $intUsedPercent = ($hrefVolInfo->{$strVol}->{'space-used'} / $hrefVolInfo->{$strVol}->{'space-total'}) * 100;
-            	$intUsedPercent = floor($intUsedPercent + 0.5);
-            	my $strReadableUsed = space_to_human_readable($hrefVolInfo->{$strVol}->{'space-used'});
-            	my $strReadableTotal = space_to_human_readable($hrefVolInfo->{$strVol}->{'space-total'});
-            	my $strNewMessage = $strVol . " - " . $strReadableUsed . "/" . $strReadableTotal . " (" . $intUsedPercent . "%) SPACE USED";
-			
-			
+			# if (defined($hrefVolInfo->{$strVol}->{'space-total'})) {
+
+			my $intUsedPercent = ($hrefVolInfo->{$strVol}->{'space-used'} / $hrefVolInfo->{$strVol}->{'space-total'}) * 100;
+			$intUsedPercent = floor($intUsedPercent + 0.5);
+			my $strReadableUsed = space_to_human_readable($hrefVolInfo->{$strVol}->{'space-used'});
+			my $strReadableTotal = space_to_human_readable($hrefVolInfo->{$strVol}->{'space-total'});
+			my $strNewMessage = $strVol . " - " . $strReadableUsed . "/" . $strReadableTotal . " (" . $intUsedPercent . "%) SPACE USED";
+
+			$verbose && print($strNewMessage . " ");
+
 			if (defined($hrefThresholds->{'space-percent'}) && defined($hrefThresholds->{'space-count'})) {
+
 				my $intCountInBytes = space_to_bytes($hrefThresholds->{'space-count'});
 				my $intCountInPercent = ($intCountInBytes/$hrefVolInfo->{$strVol}->{'space-total'}) * 100;
 				$intCountInPercent = floor($intCountInPercent + 0.5);
 				my $intPercentInvert = 100 - $hrefThresholds->{'space-percent'};
 				
 				if ($intCountInPercent < $intPercentInvert) {
+
 					my $intBytesRemaining = $hrefVolInfo->{$strVol}->{'space-total'} - $hrefVolInfo->{$strVol}->{'space-used'};
+
 					if ($intCountInBytes > $intBytesRemaining) {
+
+						$verbose && print("!!!");
 						$intState = get_nagios_state($intState, $intAlertLevel);
 						$strOutput = get_nagios_description($strOutput, $strNewMessage);
 						$bMarkedForRemoval = 1;
 					}
-				} 
+				}
+
 				else {
 					if ($intUsedPercent >= $hrefThresholds->{'space-percent'}) {
+
+						$verbose && print("!!!");
 						$intState = get_nagios_state($intState, $intAlertLevel);
-                        $strOutput = get_nagios_description($strOutput, $strNewMessage);
-                        $bMarkedForRemoval = 1;
+						$strOutput = get_nagios_description($strOutput, $strNewMessage);
+						$bMarkedForRemoval = 1;
 					}
 				}
-			} elsif (defined($hrefThresholds->{'space-percent'})) {
+			}
+
+			elsif (defined($hrefThresholds->{'space-percent'})) {
+
 				if ($intUsedPercent >= $hrefThresholds->{'space-percent'}) {
-                                	$intState = get_nagios_state($intState, $intAlertLevel);
-                                        $strOutput = get_nagios_description($strOutput, $strNewMessage);
-                                        $bMarkedForRemoval = 1;
-                                }
-			} elsif (defined($hrefThresholds->{'space-count'})) { 
-				my $intCountInBytes = space_to_bytes($hrefThresholds->{'space-count'});
-				my $intBytesRemaining = $hrefVolInfo->{$strVol}->{'space-total'} - $hrefVolInfo->{$strVol}->{'space-used'};
-				if ($intCountInBytes > $intBytesRemaining) {
+
+					$verbose && print("!!!");
                                 	$intState = get_nagios_state($intState, $intAlertLevel);
                                         $strOutput = get_nagios_description($strOutput, $strNewMessage);
                                         $bMarkedForRemoval = 1;
                                 }
 			}
+
+			elsif (defined($hrefThresholds->{'space-count'})) {
+
+				my $intCountInBytes = space_to_bytes($hrefThresholds->{'space-count'});
+				my $intBytesRemaining = $hrefVolInfo->{$strVol}->{'space-total'} - $hrefVolInfo->{$strVol}->{'space-used'};
+
+				if ($intCountInBytes > $intBytesRemaining) {
+
+					$verbose && print("!!!");
+                                	$intState = get_nagios_state($intState, $intAlertLevel);
+                                        $strOutput = get_nagios_description($strOutput, $strNewMessage);
+                                        $bMarkedForRemoval = 1;
+                                }
+			}
+
+			$verbose && print("\n");
 		}
 
-		if (defined($hrefThresholds->{'inodes-percent'}) || defined($hrefThresholds->{'inodes-count'})) {	
+		if (defined($hrefThresholds->{'inodes-percent'}) || defined($hrefThresholds->{'inodes-count'})) {
+
 			my $intUsedPercent = ($hrefVolInfo->{$strVol}->{'inodes-used'} / $hrefVolInfo->{$strVol}->{'inodes-total'}) * 100;
-                                $intUsedPercent = floor($intUsedPercent + 0.5);
-                                my $strNewMessage = $strVol . " - " . $hrefVolInfo->{$strVol}->{'inodes-used'} . "/" . $hrefVolInfo->{$strVol}->{'inodes-total'} . " (" . $intUsedPercent . "%) INODES USED";
+			$intUsedPercent = floor($intUsedPercent + 0.5);
+			my $strNewMessage = $strVol . " - " . $hrefVolInfo->{$strVol}->{'inodes-used'} . "/" . $hrefVolInfo->{$strVol}->{'inodes-total'} . " (" . $intUsedPercent . "%) INODES USED";
+
+			$verbose && print($strNewMessage . " ");
 
 			if (defined($hrefThresholds->{'inodes-percent'}) && defined($hrefThresholds->{'inodes-count'})) {
+
 				my $intPercentInInodes = $hrefVolInfo->{$strVol}->{'inodes-total'} * ($hrefThresholds->{'inodes-percent'}/100);
 				
 				if ($hrefThresholds->{'inodes-count'} < $intPercentInInodes) {
+
 					my $intInodesRemaining = $hrefVolInfo->{$strVol}->{'inodes-total'} - $hrefVolInfo->{$strVol}->{'inodes-used'};
+
 					if ($hrefThresholds->{'inodes-count'} > $intInodesRemaining) {
-						$intState = get_nagios_state($intState, $intAlertLevel);
-                                                $strOutput = get_nagios_description($strOutput, $strNewMessage);
-                                                $bMarkedForRemoval = 1;
-					}
-				} else {
-					if ($intUsedPercent >= $hrefThresholds->{'inodes-percent'}) {
+
+						$verbose && print("!!!");
 						$intState = get_nagios_state($intState, $intAlertLevel);
                                                 $strOutput = get_nagios_description($strOutput, $strNewMessage);
                                                 $bMarkedForRemoval = 1;
 					}
 				}
-			} elsif (defined($hrefThresholds->{'inodes-percent'})) {
+
+				else {
+
+					if ($intUsedPercent >= $hrefThresholds->{'inodes-percent'}) {
+
+						$verbose && print("!!!");
+						$intState = get_nagios_state($intState, $intAlertLevel);
+                                                $strOutput = get_nagios_description($strOutput, $strNewMessage);
+                                                $bMarkedForRemoval = 1;
+					}
+				}
+			}
+
+			elsif (defined($hrefThresholds->{'inodes-percent'})) {
+
 				if ($intUsedPercent >= $hrefThresholds->{'inodes-percent'}) {
-                                	$intState = get_nagios_state($intState, $intAlertLevel);
-                                        $strOutput = get_nagios_description($strOutput, $strNewMessage);
-                                        $bMarkedForRemoval = 1;
-                                }
-			} elsif (defined($hrefThresholds->{'inodes-count'})) {
-				my $intInodesRemaining = $hrefVolInfo->{$strVol}->{'inodes-total'} - $hrefVolInfo->{$strVol}->{'inodes-used'};
-                                
-				if ($hrefThresholds->{'inodes-count'} > $intInodesRemaining) {
+
+					$verbose && print("!!!");
                                 	$intState = get_nagios_state($intState, $intAlertLevel);
                                         $strOutput = get_nagios_description($strOutput, $strNewMessage);
                                         $bMarkedForRemoval = 1;
                                 }
 			}
+
+			elsif (defined($hrefThresholds->{'inodes-count'})) {
+
+				my $intInodesRemaining = $hrefVolInfo->{$strVol}->{'inodes-total'} - $hrefVolInfo->{$strVol}->{'inodes-used'};
+                                
+				if ($hrefThresholds->{'inodes-count'} > $intInodesRemaining) {
+
+					$verbose && print("!!!");
+                                	$intState = get_nagios_state($intState, $intAlertLevel);
+                                        $strOutput = get_nagios_description($strOutput, $strNewMessage);
+                                        $bMarkedForRemoval = 1;
+                                }
+			}
+
+			$verbose && print("\n");
 		}
 		
 		# Remove problems from list so that it's not altered by further monitoring (I.e. warnings overwriting critical problems)
 		if ($bMarkedForRemoval) {
+
 			delete($hrefVolInfo->{$strVol});
 		}
 	}
@@ -1501,6 +1579,8 @@ sub help {
         A custom warning threshold value. See the option and threshold list at the bottom of this help text.
 --modifier, -m
         This modifier is used to set an inclusive or exclusive filter on what you want to monitor.
+--verbose, -v
+	Verbose output to see what the script is exactly checking.
 --help, -h
         Display this help text.
 
@@ -1697,14 +1777,16 @@ sub filter_object {
 # Declare and configure option selections
 my ($strHost, $strVHost, $strUser, $strPassword, $strOption, $strWarning, $strCritical, $strModifier);
 
-GetOptions("H=s" => \$strHost,                                  "hostname=s" => \$strHost,
-	   "n=s" => \$strVHost,					"node=s" => \$strVHost,
-           "u=s" => \$strUser,                                  "user=s" => \$strUser,
-           "p=s" => \$strPassword,                              "password=s" => \$strPassword,
-	   "o=s" => \$strOption,                                "option=s" => \$strOption,
-	   "w=s" => \$strWarning,            			"warning=s" => \$strWarning,
-           "c=s" => \$strCritical,            			"critical=s" => \$strCritical,
-	   "m=s" => \$strModifier, 				"modifier=s" => \$strModifier);
+GetOptions("H=s" => \$strHost,                                  "hostname=s"  => \$strHost,
+	   "n=s" => \$strVHost,					"node=s"      => \$strVHost,
+           "u=s" => \$strUser,                                  "user=s"      => \$strUser,
+           "p=s" => \$strPassword,                              "password=s"  => \$strPassword,
+	   "o=s" => \$strOption,                                "option=s"    => \$strOption,
+	   "w=s" => \$strWarning,            			"warning=s"   => \$strWarning,
+           "c=s" => \$strCritical,            			"critical=s"  => \$strCritical,
+	   "m=s" => \$strModifier, 				"modifier=s"  => \$strModifier,
+	   "v"   => \$verbose,					"verbose"     => \$verbose);
+
 
 # Print help if a required field is not entered or if help is requested.
 if (!($strHost || $strUser || $strPassword || $strOption)) {
@@ -1720,6 +1802,7 @@ my $nahStorage = NaServer->new($strHost, 1, 15);
 $nahStorage->set_style("LOGIN");
 $nahStorage->set_admin_user($strUser, $strPassword);
 $nahStorage->set_transport_type("HTTP");
+$nahStorage->set_http_version("1.0");
 my $nahResponse = $nahStorage->invoke("system-get-version");
 validate_ontapi_response($nahResponse, "Failed test query: ");
 
