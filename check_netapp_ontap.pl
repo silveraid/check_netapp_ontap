@@ -2,7 +2,7 @@
 
 #   Netapp C-mode monitoring plugin for Nagios
 #   Written by Frank Felhoffer, Willem D'Haese, John Murphy, and others
-my $strVersion = "v2.5.10.1";
+my $strVersion = "v2.5.10.2";
 
 #
 #   This program is free software: you can redistribute it and/or modify
