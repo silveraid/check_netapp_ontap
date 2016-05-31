@@ -1,25 +1,11 @@
 # Nagios plugin to check health of a NetApp Ontap cluster
 
-### Idea
+### Information 
 
-This Perl script is able to monitor most components of a NetApp Ontap cluster, such as volume, aggregate, 
-snapshot, quota, snapmirror, firler hardware, port, interface cluster and disk health.
+This is the modified version of the http://outsideit.net/check-netapp-ontap script which. The quality of
+this code is still not "production ready", however a tons of bugs have been already fixed compared to
+the original version.
 
-### Status
-
-Poduction ready. Please visit http://outsideit.net/check-netapp-ontap for more information.
-
-### How To
-
-Please visit http://outsideit.net/check-netapp-ontap for more information on how to use this plugin.
-
-### Help
-
-In case you find a bug or have a feature request, please make an issue on GitHub.
-
-### On Nagios Exchange
-
-http://exchange.nagios.org/directory/Plugins/Hardware/Storage-Systems/SAN-and-NAS/NetApp/Check-Netapp-Ontap/details
 
 ### Copyright
 

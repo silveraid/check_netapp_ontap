@@ -2,7 +2,7 @@
 
 #   Netapp C-mode monitoring plugin for Nagios
 #   Written by Frank Felhoffer, Willem D'Haese, John Murphy, and others
-my $strVersion = "v2.5.10.4";
+my $strVersion = "v2.5.10.5";
 
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -170,47 +170,62 @@ sub calc_disk_health {
 ##############################################
 
 sub get_port_health {
-        my ($nahStorage, $strVHost) = @_;
-        my $nahPortIterator = NaElement->new("net-port-get-iter");
-        my $nahQuery = NaElement->new("query");
-        my $nahPortInfo = NaElement->new("net-port-info");
-        my $strActiveTag = "";
-        my %hshPortInfo;
 
-        if (defined($strVHost)) {
-                $nahPortIterator->child_add($nahQuery);
-                $nahQuery->child_add($nahPortInfo);
-                $nahPortInfo->child_add_string("node", $strVHost);
+    my ($na, $strVHost) = @_;
+    
+    my $iter = NaElement->new("net-port-get-iter");
+    my $query = NaElement->new("query");
+    my $info = NaElement->new("net-port-info");
+    my $tag = NaElement->new("tag");
+    my $next_tag = "";
+    my %hshPortInfo;
+
+    $iter->child_add($query);
+    $iter->child_add_string("max-records", 100);
+    $iter->child_add($tag);
+    $query->child_add($info);
+
+    if (defined($strVHost)) {
+
+        $info->child_add_string("node", $strVHost);
+    }
+
+    while(defined($next_tag)) {
+
+        if ($next_tag ne "") {
+
+            $tag->set_content($next_tag);
         }
 
-        while(defined($strActiveTag)) {
-                if ($strActiveTag ne "") {
-                        $nahPortIterator->child_add_string("tag", $strActiveTag);
-                }
+        my $res = $na->invoke_elem($iter);
+        validate_ontapi_response($res, "Failed filer health query: ");
 
-                $nahPortIterator->child_add_string("max-records", 100);
-                my $nahResponse = $nahStorage->invoke_elem($nahPortIterator);
-                validate_ontapi_response($nahResponse, "Failed filer health query: ");
+        $next_tag = $res->child_get_string("next-tag");
 
-                $strActiveTag = $nahResponse->child_get_string("next-tag");
+        if ($res->child_get_string("num-records") == 0) {
 
-                if ($nahResponse->child_get_string("num-records") == 0) {
-                        last;
-                }
+            last;
+        }
 
-                foreach my $nahPort ($nahResponse->child_get("attributes-list")->children_get()) {
-                        my $strName = $nahPort->child_get_string("node") . "/" . $nahPort->child_get_string("port");
-                        if ($nahPort->child_get_string("is-administrative-up") eq "true") {
-                                $hshPortInfo{$strName}{'admin-status'} = "up";
-                        } else {
-                                $hshPortInfo{$strName}{'admin-status'} = "down";
-                        }
+        foreach my $port ($res->child_get("attributes-list")->children_get()) {
+
+            my $name = $port->child_get_string("node") . "/" . $port->child_get_string("port");
+    
+            if ($port->child_get_string("is-administrative-up") eq "true") {
+
+                $hshPortInfo{$name}{'admin-status'} = "up";
+            }
+
+            else {
+            
+                $hshPortInfo{$name}{'admin-status'} = "down";
+            }
 			
-                        $hshPortInfo{$strName}{'link-status'} = $nahPort->child_get_string("link-status");
-                }
+            $hshPortInfo{$name}{'link-status'} = $port->child_get_string("link-status");
         }
+    }
 	
-	return \%hshPortInfo;
+    return \%hshPortInfo;
 }
 
 ##############################################
@@ -261,48 +276,63 @@ sub get_interface_health {
 }
 
 sub calc_interface_health {
-	my $hrefInterfaceInfo = shift;
-        my $intState = 0;
-	my $intObjectCount = 0;
-        my $strOutput;
 
-	foreach my $strInt (keys %$hrefInterfaceInfo) {
-		$intObjectCount = $intObjectCount + 1;
-		if (!($hrefInterfaceInfo->{$strInt}->{'admin-status'} eq $hrefInterfaceInfo->{$strInt}->{'link-status'})) {
-			my $strNewMessage = $strInt . " is " . $hrefInterfaceInfo->{$strInt}->{'link-status'} . " but admin status is " . $hrefInterfaceInfo->{$strInt}->{'admin-status'};
-			$strOutput = get_nagios_description($strOutput, $strNewMessage);
+    my $hrefInterfaceInfo = shift;
+    my $intState = 0;
+    my $intObjectCount = 0;
+    my $strOutput;
 
-			if ($hrefInterfaceInfo->{$strInt}->{'link-status'} eq "down") {
-				$intState = get_nagios_state($intState, 2);
-			} elsif ($hrefInterfaceInfo->{$strInt}->{'link-status'} eq "up") {
-				$intState = get_nagios_state($intState, 1);
-			} elsif ($hrefInterfaceInfo->{$strInt}->{'link-status'} eq "unknown") {
-				$intState = get_nagios_state($intState, 3);
-			} 
-		}
+    foreach my $strInt (keys %$hrefInterfaceInfo) {
 
-		if (defined($hrefInterfaceInfo->{$strInt}->{'home-node'}) && defined($hrefInterfaceInfo->{$strInt}->{'current-node'})) {
-			if (!($hrefInterfaceInfo->{$strInt}->{'home-node'} eq $hrefInterfaceInfo->{$strInt}->{'current-node'})) {
-				my $strNewMessage = $strInt . " home is " . $hrefInterfaceInfo->{$strInt}->{'home-node'} . " but current node is " . $hrefInterfaceInfo->{$strInt}->{'current-node'};
-				$strOutput = get_nagios_description($strOutput, $strNewMessage);
-				$intState = get_nagios_state($intState, 1);
-			}
-		}
+        $intObjectCount = $intObjectCount + 1;
+        if (!($hrefInterfaceInfo->{$strInt}->{'admin-status'} eq $hrefInterfaceInfo->{$strInt}->{'link-status'})) {
 
-		if (defined($hrefInterfaceInfo->{$strInt}->{'home-port'}) && defined($hrefInterfaceInfo->{$strInt}->{'current-port'})) {
-                        if (!($hrefInterfaceInfo->{$strInt}->{'home-port'} eq $hrefInterfaceInfo->{$strInt}->{'current-port'})) {
-                                my $strNewMessage = $strInt . " home is " . $hrefInterfaceInfo->{$strInt}->{'home-port'} . " but current port is " . $hrefInterfaceInfo->{$strInt}->{'current-port'};
-                                $strOutput = get_nagios_description($strOutput, $strNewMessage);
-                                $intState = get_nagios_state($intState, 1);
-                        }
-                }
-	}
+            my $strNewMessage = $strInt . " is " . $hrefInterfaceInfo->{$strInt}->{'link-status'} . " but admin status is " . $hrefInterfaceInfo->{$strInt}->{'admin-status'};
+            $strOutput = get_nagios_description($strOutput, $strNewMessage);
 
-	if (!(defined($strOutput))) {
-                $strOutput = "OK - No problems found ($intObjectCount checked)";
+            if ($hrefInterfaceInfo->{$strInt}->{'link-status'} eq "down") {
+
+                $intState = get_nagios_state($intState, 2);
+            }
+
+            elsif ($hrefInterfaceInfo->{$strInt}->{'link-status'} eq "up") {
+
+                $intState = get_nagios_state($intState, 1);
+            }
+
+            elsif ($hrefInterfaceInfo->{$strInt}->{'link-status'} eq "unknown") {
+
+                $intState = get_nagios_state($intState, 3);
+            } 
         }
 
-        return $intState, $strOutput;
+        if (defined($hrefInterfaceInfo->{$strInt}->{'home-node'}) && defined($hrefInterfaceInfo->{$strInt}->{'current-node'})) {
+
+            if (!($hrefInterfaceInfo->{$strInt}->{'home-node'} eq $hrefInterfaceInfo->{$strInt}->{'current-node'})) {
+
+                my $strNewMessage = $strInt . " home is " . $hrefInterfaceInfo->{$strInt}->{'home-node'} . " but current node is " . $hrefInterfaceInfo->{$strInt}->{'current-node'};
+                $strOutput = get_nagios_description($strOutput, $strNewMessage);
+                $intState = get_nagios_state($intState, 1);
+            }
+        }
+
+        if (defined($hrefInterfaceInfo->{$strInt}->{'home-port'}) && defined($hrefInterfaceInfo->{$strInt}->{'current-port'})) {
+
+            if (!($hrefInterfaceInfo->{$strInt}->{'home-port'} eq $hrefInterfaceInfo->{$strInt}->{'current-port'})) {
+
+                my $strNewMessage = $strInt . " home is " . $hrefInterfaceInfo->{$strInt}->{'home-port'} . " but current port is " . $hrefInterfaceInfo->{$strInt}->{'current-port'};
+                $strOutput = get_nagios_description($strOutput, $strNewMessage);
+                $intState = get_nagios_state($intState, 1);
+            }
+        }
+    }
+
+    if (!(defined($strOutput))) {
+
+        $strOutput = "OK - No problems found ($intObjectCount checked)";
+    }
+
+    return $intState, $strOutput;
 }
 
 ##############################################
@@ -1944,16 +1974,14 @@ elsif ($strOption eq "interface_health") {
 
 elsif ($strOption eq "port_health") {
 
-        # * COMPLETE
-        # Port status
+    my $hrefPortInfo = get_port_health($nahStorage, $strVHost);
 
-        my $hrefPortInfo = get_port_health($nahStorage, $strVHost);
+    if (defined($strModifier)) {
 
-        if (defined($strModifier)) {
-                $hrefPortInfo = filter_object($hrefPortInfo, $strModifier);
-        }
+        $hrefPortInfo = filter_object($hrefPortInfo, $strModifier);
+    }
 
-        ($intState, $strOutput) = calc_interface_health($hrefPortInfo, $strWarning, $strCritical);
+    ($intState, $strOutput) = calc_interface_health($hrefPortInfo, $strWarning, $strCritical);
 }
 
 elsif ($strOption eq "netapp_alarms") {
