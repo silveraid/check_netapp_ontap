@@ -2,7 +2,7 @@
 
 #   Netapp C-mode monitoring plugin for Nagios
 #   Written by Frank Felhoffer, Willem D'Haese, John Murphy, and others
-my $strVersion = "v2.5.10.3";
+my $strVersion = "v2.5.10.4";
 
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -1304,6 +1304,14 @@ sub space_threshold_helper {
                 if (index($strVol, "_aggr0") != -1) {
                         next;
                 }
+
+		# Test if any of these variables are undefined as further 
+		# calculations are based on the result.
+		if (!defined($hrefVolInfo->{$strVol}->{'space-used'}) ||
+		    !defined($hrefVolInfo->{$strVol}->{'space-total'})) {
+
+			next;
+		}
 
 		# Test if various thresholds are defined and if they are then test if the monitored object exceeds them.
 		if (defined($hrefThresholds->{'space-percent'}) || defined($hrefThresholds->{'space-count'})) {
